@@ -2,8 +2,8 @@
 % Please edit documentation in R/wcep-package.R
 \docType{package}
 \name{wcep-package}
-\alias{wcep}
 \alias{wcep-package}
+\alias{_PACKAGE}
 \title{wcep: Survival Analysis for Weighted Composite Endpoints}
 \description{
 Analyze given data frame with multiple endpoints and return Kaplan-Meier survival probabilities together with the specified confidence interval.

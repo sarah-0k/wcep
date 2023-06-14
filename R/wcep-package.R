@@ -1,3 +1,4 @@
+#' @aliases wcep-package
 #' @keywords internal
 "_PACKAGE"
 

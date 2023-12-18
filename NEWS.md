@@ -1,10 +1,3 @@
-# wcep 1.0.2
-
-## Minor improvements and fixes
-
-* Fixed incorrect coding for sum of squared survival estimates in variance estimator.
-* Updated methods reference in description file.
-
 # wcep 1.0.1
 
 ## Minor improvements and fixes

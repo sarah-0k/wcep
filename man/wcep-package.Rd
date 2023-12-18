@@ -6,7 +6,7 @@
 \alias{_PACKAGE}
 \title{wcep: Survival Analysis for Weighted Composite Endpoints}
 \description{
-Analyze given data frame with multiple endpoints and return Kaplan-Meier survival probabilities together with the specified confidence interval.
+Analyze given data frame with multiple endpoints and return Kaplan-Meier survival probabilities together with the specified confidence interval. See Nabipoor M, Westerhout CM, Rathwell S, and Bakal JA (2023) \doi{10.1186/s12874-023-01857-0}.
 }
 \seealso{
 Useful links:

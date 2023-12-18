@@ -72,7 +72,7 @@
                 pj<-matrix(p[,2] / sum(s_table1[, j - 1]), ncol=1)
                 uj<- matrix(t(ew[, 2]), nrow=1)%*%pj
                 (1 - uj)^(-2)*(t(ew[,2])%*%(diag(as.vector(pj))- pj%*%t(pj))%*%ew[,2])
-              }))*apply(s_table, 1, mean)^2 / (dim(s_table)[2])
+              }))*apply(t(s_table)^2, 2, sum) / (dim(s_table)[2])^2
               out$variance <- s
               upper <- out$survival_probabilities +  qnorm(1-alpha / 2) * sqrt(s)
               lower <- out$survival_probabilities -  qnorm(1-alpha / 2) * sqrt(s)

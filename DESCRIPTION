@@ -1,7 +1,7 @@
 Package: wcep
 Type: Package
 Title: Survival Analysis for Weighted Composite Endpoints
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(person("Majid", "Nabipoor", email = "nabipoor@ualberta.ca", role=c("aut"),
            comment=c(ORCID = "0000-0003-2578-8300")), 
            person("Cynthia", "Westerhout", email="cindy.westerhout@ualberta.ca", role=c("aut"),
@@ -13,7 +13,7 @@ Authors@R: c(person("Majid", "Nabipoor", email = "nabipoor@ualberta.ca", role=c(
 Maintainer: Sarah Rathwell <srathwel@ualberta.ca>
 URL: https://github.com/sarah-0k/wcep
 BugReports: https://github.com/sarah-0k/wcep
-Description: Analyze given data frame with multiple endpoints and return Kaplan-Meier survival probabilities together with the specified confidence interval.
+Description: Analyze given data frame with multiple endpoints and return Kaplan-Meier survival probabilities together with the specified confidence interval. See Nabipoor M, Westerhout CM, Rathwell S, and Bakal JA (2023) <doi:10.1186/s12874-023-01857-0>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

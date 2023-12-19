@@ -1,7 +1,25 @@
+# wcep 1.0.2 Comments
+
+## R CMD check results
+
+0 errors | 0 warnings | 1 note 
+
+## Other comments
+Minor HTML validation problems listed under test environment: macOS 13.5.2 (M1 Max); roxygen2 7.2.3; HTML Tidy 5.8.0. 
+
+Reference added to description file. Updated incorrect summation code for variance estimator.
+
+## revdepcheck results
+
+We checked 0 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
+
+ * We saw 0 new problems
+ * We failed to check 0 packages
+
 # wcep 1.0.1 Comments
 
 ## R CMD check results
-There were no ERRORs, WARRNINGS, or NOTEs.
+There were no ERRORs, WARNINGS, or NOTEs.
 
 ## Other comments
 Patch for dplyr 1.1.0 updates and minor changes to references. License

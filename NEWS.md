@@ -1,5 +1,9 @@
 # wcep 1.0.3
 
+## Minor improvements and fixes
+
+* Adding missing package anchors.
+
 # wcep 1.0.2
 
 ## Minor improvements and fixes

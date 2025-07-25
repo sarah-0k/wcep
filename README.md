@@ -4,6 +4,8 @@
 # wcep
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/sarah-0k/wcep/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/sarah-0k/wcep/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of wcep is to analyze time-to-event data with multiple events,

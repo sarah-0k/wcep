@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # wcep
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/sarah-0k/wcep/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/sarah-0k/wcep/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of wcep is to analyze time-to-event data with multiple events, for instance death and shock with related severity weights. The weight of death is always 1 and other events have a positive weight smaller than 1.

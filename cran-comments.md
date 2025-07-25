@@ -1,3 +1,12 @@
+# wcep 1.0.3 Comments
+
+## R CMD check results
+
+0 errors | 0 warnings | 0 notes 
+
+## Other comments
+Updated description bug reporting url; added anchor to link in wcep.R; updated documentation and added CMD check badge. Tested in macOS (release), windows (release and dlevel), ubuntu (old, release, dlevel) no errors/warnings/notes.
+
 # wcep 1.0.2 Comments
 
 ## R CMD check results

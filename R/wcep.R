@@ -48,7 +48,7 @@ NULL
 #' Majid Nabipoor: nabipoor@@ualberta.ca,
 #' Cynthia Westerhout: cindy.westerhout@@ualberta.ca,
 #' Jeffrey Bakal: jbakal@@ualberta.ca
-#' @seealso \code{\link{coxph}} for Anderson Gill model
+#' @seealso \code{\link[survival:coxph]{coxph}} for Anderson Gill model
 #' @importFrom stats qnorm t.test
 #' @importFrom graphics plot points polygon legend
 #' @importFrom grDevices rgb

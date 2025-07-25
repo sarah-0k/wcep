@@ -3,7 +3,6 @@
 \docType{package}
 \name{wcep-package}
 \alias{wcep-package}
-\alias{_PACKAGE}
 \title{wcep: Survival Analysis for Weighted Composite Endpoints}
 \description{
 Analyze given data frame with multiple endpoints and return Kaplan-Meier survival probabilities together with the specified confidence interval. See Nabipoor M, Westerhout CM, Rathwell S, and Bakal JA (2023) \doi{10.1186/s12874-023-01857-0}.
@@ -12,7 +11,7 @@ Analyze given data frame with multiple endpoints and return Kaplan-Meier surviva
 Useful links:
 \itemize{
   \item \url{https://github.com/sarah-0k/wcep}
-  \item Report bugs at \url{https://github.com/sarah-0k/wcep}
+  \item Report bugs at \url{https://github.com/sarah-0k/wcep/issues}
 }
 
 }

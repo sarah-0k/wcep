@@ -53,7 +53,7 @@ res2$Wilcoxontest
 res2$t_test
 }
 \seealso{
-\code{\link{coxph}} for Anderson Gill model
+\code{\link[survival:coxph]{coxph}} for Anderson Gill model
 }
 \author{
 Majid Nabipoor: nabipoor@ualberta.ca,

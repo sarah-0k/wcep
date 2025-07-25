@@ -12,7 +12,7 @@ Authors@R: c(person("Majid", "Nabipoor", email = "nabipoor@ualberta.ca", role=c(
            comment=c(ORCID = "0000-0003-3176-994X")))
 Maintainer: Sarah Rathwell <srathwel@ualberta.ca>
 URL: https://github.com/sarah-0k/wcep
-BugReports: https://github.com/sarah-0k/wcep
+BugReports: https://github.com/sarah-0k/wcep/issues
 Description: Analyze given data frame with multiple endpoints and return Kaplan-Meier survival probabilities together with the specified confidence interval. See Nabipoor M, Westerhout CM, Rathwell S, and Bakal JA (2023) <doi:10.1186/s12874-023-01857-0>.
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -27,7 +27,7 @@ Imports:
          progress (>= 1.2.2),
          stats (>= 3.6.1),
          tidyr (>= 1.0.0)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Suggests: 
     testthat (>= 3.0.0)
 Collate: 

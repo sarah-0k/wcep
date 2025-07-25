@@ -2,7 +2,7 @@
 
 ## Minor improvements and fixes
 
-* Adding missing package anchors.
+* Adding missing package anchors and bug reporting url.
 
 # wcep 1.0.2
 

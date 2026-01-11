@@ -41,9 +41,7 @@ NULL
 #' #comparing two genders
 #' res2 <- wcep(toyexample, EW, split=TRUE)
 #' plot(res2)
-#' #wilcox and t test
-#' res2$Wilcoxontest
-#' res2$t_test
+
 #' @author
 #' Majid Nabipoor: nabipoor@@ualberta.ca,
 #' Cynthia Westerhout: cindy.westerhout@@ualberta.ca,
@@ -52,6 +50,9 @@ NULL
 #' @importFrom stats qnorm t.test
 #' @importFrom graphics plot points polygon legend
 #' @importFrom grDevices rgb
+#' @importFrom stringr str_extract
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib wcep
 #' @import coin dplyr progress tidyr
 #' @export
 
@@ -74,22 +75,12 @@ NULL
           }
           res <- structure(list(), class = "wcep")
           if(split == FALSE) {
-            pb <- progress_bar$new(
-              format = " work progress [:bar] :percent",
-              total = NA, clear = FALSE, width= 80)
             res <- wcep_core(x[, 1:3], EW, alpha)
           } else {
             groups <- unique(x[, 4])
             for(i in 1:2) {
-              pb <- progress_bar$new(
-                format = " Progress [:bar] :percent",
-                total = NA, clear = FALSE, width= 80)
               res[[paste0(" ", groups[i], sep="")]] <- wcep_core(x[which(x[, 4] == groups[i]), 1:3], EW,                                                                          alpha)
             }
-            res$Wilcoxontest <- wilcoxsign_test((res[[paste0(" ", groups[1], sep="")]])$survival_probabilities ~
-                                (res[[paste0(" ", groups[2], sep="")]])$survival_probabilities, zero.method = c("Pratt"))
-            res$t_test <- (t.test((res[[paste0(" ", groups[1], sep="")]])$survival_probabilities,
-                          (res[[paste0(" ", groups[2], sep="")]])$survival_probabilities))
           }
           res
  }

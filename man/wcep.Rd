@@ -48,9 +48,6 @@ plot(res1)
 #comparing two genders
 res2 <- wcep(toyexample, EW, split=TRUE)
 plot(res2)
-#wilcox and t test
-res2$Wilcoxontest
-res2$t_test
 }
 \seealso{
 \code{\link[survival:coxph]{coxph}} for Anderson Gill model

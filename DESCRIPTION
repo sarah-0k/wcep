@@ -31,7 +31,8 @@ Imports:
          stats (>= 3.6.1),
          tidyr (>= 1.0.0),
          Rcpp (>= 1.1.0),
-         RcppProgress (>= 0.4.2)
+         RcppProgress (>= 0.4.2),
+         foreach (>= 1.5.2)
 RoxygenNote: 7.3.3
 Suggests: 
     testthat (>= 3.0.0)

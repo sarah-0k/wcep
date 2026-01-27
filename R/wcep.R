@@ -52,11 +52,12 @@ NULL
 #' @importFrom grDevices rgb
 #' @importFrom stringr str_extract
 #' @importFrom Rcpp sourceCpp
+#' @importFrom parallel detectCores
 #' @useDynLib wcep
-#' @import coin dplyr progress tidyr
+#' @import coin dplyr progress tidyr foreach
 #' @export
 
- wcep <- function(x, EW, alpha = 0.05 , split = FALSE){
+ wcep <- function(x, EW, alpha = 0.05 , split = FALSE, run_parallel = FALSE){
 
    if (dim(x)[2] < 3 | dim(x)[2] > 4) {
      return(noquote("Error: Data frame x should have 3 columns for one group or 4 columns for two groups comparison"))
@@ -67,20 +68,34 @@ NULL
    if ( split == TRUE && dim(x)[2] != 4 ) {
      return(noquote("Error: Data frame x should have 4 columns" ))
    }
-   if ( split == TRUE && length(unique(x[,4])) > 2 ) {
-     return(noquote("Error: The last column should have two levels" ))
-   }
    if ( is.factor(x[,2]) == FALSE ) {
      return(noquote("Error: The second column should be factor" ))
    }
-
+   if ( split == TRUE && length(unique(x[,4])) > 2 ) {
+     return(noquote("Error: The last column should have two levels" ))
+   }
+   if ( split == FALSE && run_parallel == TRUE) {
+     return(noquote("Error: Parallel processing not available when split = FALSE"))
+   }
+   n_cores = parallel::detectCores()
+   if (run_parallel == TRUE & n_cores < 2) {
+     return(noquote("Error: Not enough cores for parallel. Set run_parallel = FALSE."))
+   }
    res <- structure(list(), class = "wcep")
+
    if(split == FALSE) {
      res <- wcep_core(x[, 1:3], EW, alpha)
-   } else {
+   }
+   if(split == TRUE & run_parallel == FALSE) {
      groups <- unique(x[, 4])
      for(i in 1:2) {
-       res[[paste0(" ", groups[i], sep="")]] <- wcep_core(x[which(x[, 4] == groups[i]), 1:3], EW,                                                                          alpha)
+       res[[paste0(" ", groups[i], sep="")]] <- wcep_core(x[which(x[, 4] == groups[i]), 1:3], EW, alpha)
+     }
+   }
+   if(split == TRUE & run_parallel == TRUE) {
+     groups <- unique(x[, 4])
+     foreach::foreach(i = 1:2) %dopar% {
+       res[[paste0(" ", groups[i], sep="")]] <- wcep_core(x[which(x[, 4] == groups[i]), 1:3], EW, alpha)
      }
    }
    res

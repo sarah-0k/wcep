@@ -4,7 +4,7 @@
 \alias{wcep}
 \title{Analysis of weighted composite endpoints}
 \usage{
-wcep(x, EW, alpha = 0.05, split = FALSE)
+wcep(x, EW, alpha = 0.05, split = FALSE, run_parallel = FALSE)
 }
 \arguments{
 \item{x}{This data frame usually has 3 columns. The first column specifies patient ID,

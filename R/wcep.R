@@ -58,29 +58,30 @@ NULL
 
  wcep <- function(x, EW, alpha = 0.05 , split = FALSE){
 
-          if (dim(x)[2] < 3 | dim(x)[2] > 4) {
-              return(noquote("Error: Data frame x should have 3 columns for one group or 4 columns for two groups comparison"))
-          }
-          if (alpha >= 1 | alpha <= 0) {
-              return(noquote("Error: value of alpha should be between 0 and 1"))
-          }
-          if ( split == TRUE && dim(x)[2] != 4 ) {
-              return(noquote("Error: Data frame x should have 4 columns" ))
-          }
-          if ( split == TRUE && length(unique(x[,4])) > 2 ) {
-              return(noquote("Error: The last column should have two levels" ))
-          }
-          if ( is.factor(x[,2]) == FALSE ) {
-              return(noquote("Error: The second column should be factor" ))
-          }
-          res <- structure(list(), class = "wcep")
-          if(split == FALSE) {
-            res <- wcep_core(x[, 1:3], EW, alpha)
-          } else {
-            groups <- unique(x[, 4])
-            for(i in 1:2) {
-              res[[paste0(" ", groups[i], sep="")]] <- wcep_core(x[which(x[, 4] == groups[i]), 1:3], EW,                                                                          alpha)
-            }
-          }
-          res
+   if (dim(x)[2] < 3 | dim(x)[2] > 4) {
+     return(noquote("Error: Data frame x should have 3 columns for one group or 4 columns for two groups comparison"))
+   }
+   if (alpha >= 1 | alpha <= 0) {
+     return(noquote("Error: value of alpha should be between 0 and 1"))
+   }
+   if ( split == TRUE && dim(x)[2] != 4 ) {
+     return(noquote("Error: Data frame x should have 4 columns" ))
+   }
+   if ( split == TRUE && length(unique(x[,4])) > 2 ) {
+     return(noquote("Error: The last column should have two levels" ))
+   }
+   if ( is.factor(x[,2]) == FALSE ) {
+     return(noquote("Error: The second column should be factor" ))
+   }
+
+   res <- structure(list(), class = "wcep")
+   if(split == FALSE) {
+     res <- wcep_core(x[, 1:3], EW, alpha)
+   } else {
+     groups <- unique(x[, 4])
+     for(i in 1:2) {
+       res[[paste0(" ", groups[i], sep="")]] <- wcep_core(x[which(x[, 4] == groups[i]), 1:3], EW,                                                                          alpha)
+     }
+   }
+   res
  }

@@ -13,33 +13,38 @@ NumericVector survtab(NumericMatrix Xr,
                       bool display_progress = true) {
 
   double m  = Xr.nrow();
-  NumericMatrix lifemat(n, t), nocens(n, t), weight(m,n);
+  // Optimization: "nocens" matrix removed to save memory.
+  // We only need the current cumulative probability state.
+  NumericMatrix lifemat(n, t);
+  NumericVector current_nocens(n, 1.0); // Tracks "no-censoring" survival prob
 
+  // initialize progress bar of length t
   Progress p(t, display_progress);
 
+  // Loop through time (j) and patients (i)
   for(int j = 0; j < t; ++j) {
 
     for(int i = 0; i < n; ++i) {
 
-      lifemat(i,j) = 1;
-      nocens(i,j) = 1;
-
+      // Check if any event occurred at time j+1 for patient i
       for(int v = 0; v < m; ++v) {
-
-        weight(v,i) = (Xr(v,i) <= j+1 ? (1 - Xr(v,n)) : 1);
-        nocens(i,j) = nocens(i,j) * weight(v, i);
+        // Xr stores event times. Check if event time matches current day
+        if (Xr(v,i) == j + 1) {
+          // Apply weight penalty: S(t) = S(t-1) * (1 - weight)
+          current_nocens[i] *= (1.0 - Xr(v,n));
+        }
       }
 
+      // Censoring Logic
       if(j < (C[i]-1)){
-
-        lifemat(i,j) = nocens(i,j);
-
+        // Patient is NOT yet censored: use calculated probability
+        lifemat(i,j) = current_nocens[i];
       }
-
       else {
-
-        lifemat(i,j) = lifemat(i,j-1) * (1 - U[j]);
-
+        // Patient IS censored: Impute using Mean Risk (U) of the risk set
+        // Recursive formula: Prev_Day * (1 - Mean_Risk)
+        double prev = (j == 0) ? 1.0 : lifemat(i,j-1);
+        lifemat(i,j) = prev * (1.0 - U[j]);
       }
     }
     p.increment(); // update progress

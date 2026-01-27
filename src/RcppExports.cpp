@@ -27,21 +27,21 @@ BEGIN_RCPP
 END_RCPP
 }
 // varvec
-NumericVector varvec(NumericVector W, NumericVector uj, NumericMatrix pj, NumericMatrix s_table_c, IntegerVector censor_times, IntegerVector n_riskset, int n, int max_time, bool display_progress);
-RcppExport SEXP _wcep_varvec(SEXP WSEXP, SEXP ujSEXP, SEXP pjSEXP, SEXP s_table_cSEXP, SEXP censor_timesSEXP, SEXP n_risksetSEXP, SEXP nSEXP, SEXP max_timeSEXP, SEXP display_progressSEXP) {
+NumericVector varvec(NumericVector W, NumericVector uj, NumericMatrix pj, NumericMatrix s_table, IntegerVector censor_times, IntegerVector n_riskset, int n, int max_time, bool display_progress);
+RcppExport SEXP _wcep_varvec(SEXP WSEXP, SEXP ujSEXP, SEXP pjSEXP, SEXP s_tableSEXP, SEXP censor_timesSEXP, SEXP n_risksetSEXP, SEXP nSEXP, SEXP max_timeSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type W(WSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type uj(ujSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type pj(pjSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type s_table_c(s_table_cSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type s_table(s_tableSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type censor_times(censor_timesSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type n_riskset(n_risksetSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< int >::type max_time(max_timeSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
-    rcpp_result_gen = Rcpp::wrap(varvec(W, uj, pj, s_table_c, censor_times, n_riskset, n, max_time, display_progress));
+    rcpp_result_gen = Rcpp::wrap(varvec(W, uj, pj, s_table, censor_times, n_riskset, n, max_time, display_progress));
     return rcpp_result_gen;
 END_RCPP
 }

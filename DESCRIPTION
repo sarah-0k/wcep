@@ -32,7 +32,8 @@ Imports:
          tidyr (>= 1.0.0),
          Rcpp (>= 1.1.0),
          RcppProgress (>= 0.4.2),
-         foreach (>= 1.5.2)
+         foreach (>= 1.5.2),
+         doParallel (>= 1.0.17)
 RoxygenNote: 7.3.3
 Suggests: 
     testthat (>= 3.0.0)

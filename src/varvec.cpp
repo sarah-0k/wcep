@@ -9,7 +9,7 @@ using namespace Rcpp;
 NumericVector varvec(NumericVector W,
                       NumericVector uj,
                       NumericMatrix pj,
-                      NumericMatrix s_table_c,
+                      NumericMatrix s_table,
                       IntegerVector censor_times,
                       IntegerVector n_riskset,
                       int n,
@@ -54,7 +54,7 @@ NumericVector varvec(NumericVector W,
         }
         sum_t += factor * quad_form;
       }
-      sum_i += sum_t * s_table_c(i, j) * s_table_c(i, j);
+      sum_i += sum_t * s_table(i, j) * s_table(i, j);
     }
     term1_j[j] = sum_i;
 
@@ -91,7 +91,7 @@ NumericVector varvec(NumericVector W,
           // Note: Divided by n_riskset[t] here
           sum_t += (factor * quad_form) / n_riskset[t];
         }
-        sum_i += sum_t * s_table_c(i, j) * s_table_c(i, j);
+        sum_i += sum_t * s_table(i, j) * s_table(i, j);
       }
     }
     term2_j[j] = sum_i;
@@ -110,7 +110,7 @@ NumericVector varvec(NumericVector W,
     double sum_alive_survival = 0.0;
     for (int ip = 0; ip < n; ip++) {
       if (censor_times[ip] > j_time) {
-        sum_alive_survival += s_table_c(ip, j);
+        sum_alive_survival += s_table(ip, j);
       }
     }
 
@@ -146,8 +146,8 @@ NumericVector varvec(NumericVector W,
           sum_t += (factor * quad_form) / n_riskset[t];
         }
 
-        // Optimized Formula: sum_t * s_table_c(i, j) * (Sum of Alive Survival)
-        sum_i += sum_t * s_table_c(i, j) * sum_alive_survival;
+        // Optimized Formula: sum_t * s_table(i, j) * (Sum of Alive Survival)
+        sum_i += sum_t * s_table(i, j) * sum_alive_survival;
       }
     }
     term4_j[j] = sum_i;

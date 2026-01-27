@@ -5,7 +5,7 @@ survtab <- function(Xr, n, t, C, U, display_progress = TRUE) {
     .Call('_wcep_survtab', PACKAGE = 'wcep', Xr, n, t, C, U, display_progress)
 }
 
-varvec <- function(W, uj, pj, s_table_c, censor_times, n_riskset, n, max_time, display_progress = TRUE) {
-    .Call('_wcep_varvec', PACKAGE = 'wcep', W, uj, pj, s_table_c, censor_times, n_riskset, n, max_time, display_progress)
+varvec <- function(W, uj, pj, s_table, censor_times, n_riskset, n, max_time, display_progress = TRUE) {
+    .Call('_wcep_varvec', PACKAGE = 'wcep', W, uj, pj, s_table, censor_times, n_riskset, n, max_time, display_progress)
 }
 

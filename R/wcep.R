@@ -50,9 +50,10 @@ NULL
 #' @importFrom stats qnorm t.test
 #' @importFrom graphics plot points polygon legend
 #' @importFrom grDevices rgb
-#' @importFrom stringr str_extract
+#' @importFrom stringr str_extract str_remove
 #' @importFrom Rcpp sourceCpp
-#' @importFrom parallel detectCores
+#' @importFrom parallel detectCores makeCluster stopCluster
+#' @importFrom doParallel registerDoParallel
 #' @useDynLib wcep
 #' @import coin dplyr progress tidyr foreach
 #' @export
@@ -93,10 +94,13 @@ NULL
      }
    }
    if(split == TRUE & run_parallel == TRUE) {
+     cluster <- parallel::makeCluster(2)
+     doParallel::registerDoParallel(cluster)
      groups <- unique(x[, 4])
      foreach::foreach(i = 1:2) %dopar% {
        res[[paste0(" ", groups[i], sep="")]] <- wcep_core(x[which(x[, 4] == groups[i]), 1:3], EW, alpha)
      }
+     parallel::stopCluster(cl = cluster)
    }
    res
  }

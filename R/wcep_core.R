@@ -62,7 +62,7 @@
    # --- Event Renaming (Vectorized) ---
    x1 <- x |>
      group_by(i_key) |>
-     mutate(evtp_h = nam_optimized(EVENT)) |>
+     mutate(evtp_h = nam(EVENT)) |>
      ungroup()
 
    # --- Advanced Filtering ---
@@ -143,7 +143,7 @@
      W = W_valid,
      uj = uj,
      pj = pj,
-     s_table_c = s_table_c,
+     s_table = s_table,
      censor_times = all_cens_times,
      n_riskset = n_riskset,
      n = n,

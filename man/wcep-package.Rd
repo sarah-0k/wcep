@@ -20,16 +20,15 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Majid Nabipoor \email{nabipoor@ualberta.ca} (\href{https://orcid.org/0000-0003-2578-8300}{ORCID})
-  \item Cynthia Westerhout \email{cindy.westerhout@ualberta.ca} (\href{https://orcid.org/0000-0003-1082-5981}{ORCID})
   \item Jeffrey Bakal \email{jbakal@ualberta.ca} (\href{https://orcid.org/0000-0002-3658-2554}{ORCID})
+  \item Cynthia Westerhout \email{cindy.westerhout@ualberta.ca} (\href{https://orcid.org/0000-0003-1082-5981}{ORCID})
   \item Caroline Falvey \email{caroline.falvey@duke.edu}
   \item Huiman Barnhart \email{huiman.barnhart@duke.edu}
 }
 
 Other contributors:
 \itemize{
-  \item Na Zhang \email{Na.Zhang@healthsharedservices.ca} [contributor]
+  \item Na Zhang \email{Na.Zhang@healthsharedservices.ca} (\href{https://orcid.org/0000-0001-7850-280X}{ORCID}) [contributor]
 }
 
 }

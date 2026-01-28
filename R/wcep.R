@@ -14,7 +14,12 @@ NULL
 #'
 #' @param EW This data frame has two columns. The first column
 #' specifies a character vector of event types. The second column specify weights.
-#' The naming of event types in x and EW should be exactly similar.
+#' The naming of event types in x and EW should be exactly similar. Events with
+#' weight = 1 are terminal events; events with weight = 0 are censoring events.
+#' Data should contain at most one terminal event type and one censoring event
+#' type. IDs should have at most either one terminal event type or one censoring
+#' event type. IDs without either a terminal or censor event listed will be censored
+#' at the maximum follow time otherwise listed in the data.
 #'
 #' @param alpha A numeric value between 0-1 which specifies the confidence level,
 #' if it is not specified, by default is 0.05.
@@ -33,7 +38,7 @@ NULL
 #' @examples
 #' data(toyexample)
 #' #event weights
-#' EW <- data.frame(event = c('CHF','DTH','SHK','REMI'), weight = c(0.3,1,0.5,0.2))
+#' EW <- data.frame(event = c('CHF','DTH','SHK','REMI','N'), weight = c(0.3,1,0.5,0.2,0))
 #' res1 <- wcep(toyexample, EW)
 #' str(res1)
 #' res1$survival_probabilities
@@ -48,16 +53,16 @@ NULL
 #' Jeffrey Bakal: jbakal@@ualberta.ca,
 #' Sarah Rathwell: srathwel@@ualberta.ca
 #' @seealso \code{\link[survival:coxph]{coxph}} for Anderson Gill model
-#' @importFrom stats qnorm t.test
+#' @importFrom stats qnorm t.test ave
 #' @importFrom graphics plot points polygon legend
 #' @importFrom grDevices rgb
 #' @importFrom stringr str_extract str_remove
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib wcep
-#' @import coin dplyr tidyr
+#' @import coin dplyr tidyr RcppProgress
 #' @export
 
- wcep <- function(x, EW, alpha = 0.05 , split = FALSE, run_parallel = FALSE){
+ wcep <- function(x, EW, alpha = 0.05 , split = FALSE){
 
    if (dim(x)[2] < 3 | dim(x)[2] > 4) {
      return(noquote("Error: Data frame x should have 3 columns for one group or 4 columns for two groups comparison"))

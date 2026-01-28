@@ -13,6 +13,8 @@
    out <- list()
    class(out) <- "wcep"
 
+   ID <- TIME <- EVENT <- i_key <- evtp_h <- event_base <- evtm_h <- censor_time <- NULL
+
    # Standardize column names
    colnames(x) <- c("ID", "EVENT", "TIME")
    names(ew) <- c("event", "weight")

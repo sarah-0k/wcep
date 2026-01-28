@@ -9,7 +9,10 @@ Authors@R: c(person("Majid", "Nabipoor", email = "nabipoor@ualberta.ca", role=c(
            person("Jeffrey", "Bakal", email="jbakal@ualberta.ca", role=c("aut"),
            comment=c(ORCID = "0000-0002-3658-2554")),
            person("Sarah", "Rathwell", email="srathwel@ualberta.ca", role=c("cre", "aut"),
-           comment=c(ORCID = "0000-0003-3176-994X")))
+           comment=c(ORCID = "0000-0003-3176-994X")),
+           person("Caroline", "Falvey", email="caroline.falvey@duke.edu", role=c("aut")),
+           person("Huiman", "Barnhart", email="huiman.barnhart@duke.edu", role=c("aut")),
+           person("Na", "Zhang", email="Na.Zhang@healthsharedservices.ca", role=c("ctb")))
 Maintainer: Sarah Rathwell <srathwel@ualberta.ca>
 URL: https://github.com/sarah-0k/wcep
 BugReports: https://github.com/sarah-0k/wcep/issues

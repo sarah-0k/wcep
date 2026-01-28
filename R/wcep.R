@@ -14,7 +14,12 @@ NULL
 #'
 #' @param EW This data frame has two columns. The first column
 #' specifies a character vector of event types. The second column specify weights.
-#' The naming of event types in x and EW should be exactly similar.
+#' The naming of event types in x and EW should be exactly similar. Events with
+#' weight = 1 are terminal events; events with weight = 0 are censoring events.
+#' Data should contain at most one terminal event type and one censoring event
+#' type. IDs should have at most either one terminal event type or one censoring
+#' event type. IDs without either a terminal or censor event listed will be censored
+#' at the maximum follow time otherwise listed in the data.
 #'
 #' @param alpha A numeric value between 0-1 which specifies the confidence level,
 #' if it is not specified, by default is 0.05.
@@ -33,7 +38,7 @@ NULL
 #' @examples
 #' data(toyexample)
 #' #event weights
-#' EW <- data.frame(event = c('CHF','DTH','SHK','REMI'), weight = c(0.3,1,0.5,0.2))
+#' EW <- data.frame(event = c('CHF','DTH','SHK','REMI','N'), weight = c(0.3,1,0.5,0.2,0))
 #' res1 <- wcep(toyexample, EW)
 #' str(res1)
 #' res1$survival_probabilities
@@ -41,55 +46,59 @@ NULL
 #' #comparing two genders
 #' res2 <- wcep(toyexample, EW, split=TRUE)
 #' plot(res2)
-#' #wilcox and t test
-#' res2$Wilcoxontest
-#' res2$t_test
+
 #' @author
 #' Majid Nabipoor: nabipoor@@ualberta.ca,
 #' Cynthia Westerhout: cindy.westerhout@@ualberta.ca,
-#' Jeffrey Bakal: jbakal@@ualberta.ca
+#' Jeffrey Bakal: jbakal@@ualberta.ca,
+#' Sarah Rathwell: srathwel@@ualberta.ca
 #' @seealso \code{\link[survival:coxph]{coxph}} for Anderson Gill model
-#' @importFrom stats qnorm t.test
+#' @importFrom stats qnorm t.test ave
 #' @importFrom graphics plot points polygon legend
 #' @importFrom grDevices rgb
-#' @import coin dplyr progress tidyr
+#' @importFrom stringr str_extract str_remove
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib wcep
+#' @import coin dplyr tidyr RcppProgress
 #' @export
 
  wcep <- function(x, EW, alpha = 0.05 , split = FALSE){
 
-          if (dim(x)[2] < 3 | dim(x)[2] > 4) {
-              return(noquote("Error: Data frame x should have 3 columns for one group or 4 columns for two groups comparison"))
-          }
-          if (alpha >= 1 | alpha <= 0) {
-              return(noquote("Error: value of alpha should be between 0 and 1"))
-          }
-          if ( split == TRUE && dim(x)[2] != 4 ) {
-              return(noquote("Error: Data frame x should have 4 columns" ))
-          }
-          if ( split == TRUE && length(unique(x[,4])) > 2 ) {
-              return(noquote("Error: The last column should have two levels" ))
-          }
-          if ( is.factor(x[,2]) == FALSE ) {
-              return(noquote("Error: The second column should be factor" ))
-          }
-          res <- structure(list(), class = "wcep")
-          if(split == FALSE) {
-            pb <- progress_bar$new(
-              format = " work progress [:bar] :percent",
-              total = NA, clear = FALSE, width= 80)
-            res <- wcep_core(x[, 1:3], EW, alpha)
-          } else {
-            groups <- unique(x[, 4])
-            for(i in 1:2) {
-              pb <- progress_bar$new(
-                format = " Progress [:bar] :percent",
-                total = NA, clear = FALSE, width= 80)
-              res[[paste0(" ", groups[i], sep="")]] <- wcep_core(x[which(x[, 4] == groups[i]), 1:3], EW,                                                                          alpha)
-            }
-            res$Wilcoxontest <- wilcoxsign_test((res[[paste0(" ", groups[1], sep="")]])$survival_probabilities ~
-                                (res[[paste0(" ", groups[2], sep="")]])$survival_probabilities, zero.method = c("Pratt"))
-            res$t_test <- (t.test((res[[paste0(" ", groups[1], sep="")]])$survival_probabilities,
-                          (res[[paste0(" ", groups[2], sep="")]])$survival_probabilities))
-          }
-          res
+   if (dim(x)[2] < 3 | dim(x)[2] > 4) {
+     return(noquote("Error: Data frame x should have 3 columns for one group or 4 columns for two groups comparison"))
+   }
+   if (alpha >= 1 | alpha <= 0) {
+     return(noquote("Error: value of alpha should be between 0 and 1"))
+   }
+   if ( split == TRUE && dim(x)[2] != 4 ) {
+     return(noquote("Error: Data frame x should have 4 columns" ))
+   }
+   if ( is.factor(x[,2]) == FALSE ) {
+     return(noquote("Error: The second column should be factor" ))
+   }
+   if ( split == TRUE && length(unique(x[,4])) > 2 ) {
+     return(noquote("Error: The last column should have two levels" ))
+   }
+   res <- structure(list(), class = "wcep")
+
+   if(split == FALSE) {
+     res <- wcep_core(x[, 1:3], EW, alpha)
+   }
+   if(split == TRUE) {
+
+     groups <- unique(x[, 4])
+     #handle possible missing factor levels by group
+     x[,1] = as.character(x[,1])
+     x[,2] = as.character(x[,2])
+
+       for(i in 1:2) {
+         dat_i = x[which(x[, 4] == groups[i]), 1:3]
+         dat_i[,1] = as.factor(dat_i[,1])
+         dat_i[,2] = as.factor(dat_i[,2])
+
+         res[[paste0(groups[i], sep="")]] <-
+           wcep_core(dat_i, EW, alpha)
+       }
+     }
+   res
  }

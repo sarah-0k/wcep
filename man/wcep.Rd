@@ -15,7 +15,12 @@ like gender.}
 
 \item{EW}{This data frame has two columns. The first column
 specifies a character vector of event types. The second column specify weights.
-The naming of event types in x and EW should be exactly similar.}
+The naming of event types in x and EW should be exactly similar. Events with
+weight = 1 are terminal events; events with weight = 0 are censoring events.
+Data should contain at most one terminal event type and one censoring event
+type. IDs should have at most either one terminal event type or one censoring
+event type. IDs without either a terminal or censor event listed will be censored
+at the maximum follow time otherwise listed in the data.}
 
 \item{alpha}{A numeric value between 0-1 which specifies the confidence level,
 if it is not specified, by default is 0.05.}
@@ -40,7 +45,7 @@ estimate of the survival and variance using a weighted composite endpoint,
 \examples{
 data(toyexample)
 #event weights
-EW <- data.frame(event = c('CHF','DTH','SHK','REMI'), weight = c(0.3,1,0.5,0.2))
+EW <- data.frame(event = c('CHF','DTH','SHK','REMI','N'), weight = c(0.3,1,0.5,0.2,0))
 res1 <- wcep(toyexample, EW)
 str(res1)
 res1$survival_probabilities
@@ -48,9 +53,6 @@ plot(res1)
 #comparing two genders
 res2 <- wcep(toyexample, EW, split=TRUE)
 plot(res2)
-#wilcox and t test
-res2$Wilcoxontest
-res2$t_test
 }
 \seealso{
 \code{\link[survival:coxph]{coxph}} for Anderson Gill model
@@ -58,5 +60,6 @@ res2$t_test
 \author{
 Majid Nabipoor: nabipoor@ualberta.ca,
 Cynthia Westerhout: cindy.westerhout@ualberta.ca,
-Jeffrey Bakal: jbakal@ualberta.ca
+Jeffrey Bakal: jbakal@ualberta.ca,
+Sarah Rathwell: srathwel@ualberta.ca
 }

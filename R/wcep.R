@@ -54,7 +54,7 @@ NULL
 #' @importFrom stringr str_extract str_remove
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib wcep
-#' @import coin dplyr progress tidyr
+#' @import coin dplyr tidyr
 #' @export
 
  wcep <- function(x, EW, alpha = 0.05 , split = FALSE, run_parallel = FALSE){

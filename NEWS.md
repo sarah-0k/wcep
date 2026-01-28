@@ -4,7 +4,8 @@
 * Adding ability to handle censoring.
 * Update to survival and variance estimators to run in C++.
 * Addition of C++ dependencies and removal of progress bar dependencies.
-* Update to R dependency to allow for use of pipe `|>`.
+* New progress bar for each estimate component (survival, variance) directly in C++
+* Update to R dependency (>= 4.1) to allow for use of pipe `|>`.
 * Removal of global Wilcoxon and t-tests.
 
 

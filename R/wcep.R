@@ -52,10 +52,8 @@ NULL
 #' @importFrom grDevices rgb
 #' @importFrom stringr str_extract str_remove
 #' @importFrom Rcpp sourceCpp
-#' @importFrom parallel detectCores makeCluster stopCluster
-#' @importFrom doParallel registerDoParallel
 #' @useDynLib wcep
-#' @import coin dplyr progress tidyr foreach
+#' @import coin dplyr progress tidyr
 #' @export
 
  wcep <- function(x, EW, alpha = 0.05 , split = FALSE, run_parallel = FALSE){
@@ -75,32 +73,26 @@ NULL
    if ( split == TRUE && length(unique(x[,4])) > 2 ) {
      return(noquote("Error: The last column should have two levels" ))
    }
-   if ( split == FALSE && run_parallel == TRUE) {
-     return(noquote("Error: Parallel processing not available when split = FALSE"))
-   }
-   n_cores = parallel::detectCores()
-   if (run_parallel == TRUE & n_cores < 2) {
-     return(noquote("Error: Not enough cores for parallel. Set run_parallel = FALSE."))
-   }
    res <- structure(list(), class = "wcep")
 
    if(split == FALSE) {
      res <- wcep_core(x[, 1:3], EW, alpha)
    }
-   if(split == TRUE & run_parallel == FALSE) {
+   if(split == TRUE) {
+
      groups <- unique(x[, 4])
-     for(i in 1:2) {
-       res[[paste0(" ", groups[i], sep="")]] <- wcep_core(x[which(x[, 4] == groups[i]), 1:3], EW, alpha)
+     #handle possible missing factor levels by group
+     x[,1] = as.character(x[,1])
+     x[,2] = as.character(x[,2])
+
+       for(i in 1:2) {
+         dat_i = x[which(x[, 4] == groups[i]), 1:3]
+         dat_i[,1] = as.factor(dat_i[,1])
+         dat_i[,2] = as.factor(dat_i[,2])
+
+         res[[paste0(groups[i], sep="")]] <-
+           wcep_core(dat_i, EW, alpha)
+       }
      }
-   }
-   if(split == TRUE & run_parallel == TRUE) {
-     cluster <- parallel::makeCluster(2)
-     doParallel::registerDoParallel(cluster)
-     groups <- unique(x[, 4])
-     foreach::foreach(i = 1:2) %dopar% {
-       res[[paste0(" ", groups[i], sep="")]] <- wcep_core(x[which(x[, 4] == groups[i]), 1:3], EW, alpha)
-     }
-     parallel::stopCluster(cl = cluster)
-   }
    res
  }

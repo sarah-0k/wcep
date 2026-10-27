@@ -53,9 +53,25 @@
        n_cens = sum(EVENT == cens_ind, na.rm=TRUE)
      )
 
-   if(any(check_multiples$n_term > 1)) stop("Error: Multiple terminal events in at least 1 subject.")
-   if(any(check_multiples$n_cens > 1)) stop("Error: Multiple censor times in at lesat 1 subject.")
-   if(any(check_multiples$n_term > 0 & check_multiples$n_cens > 0)) stop("Error: At least 1 subject has both terminal and censor event.")
+   #filter out all events after the first terminal/censor event and report
+   if(any(check_multiples$n_term > 1) | any(check_multiples$n_cens > 1) |
+      any(check_multiples$n_term > 0 & check_multiples$n_cens > 0)){
+     x <- x |>
+       group_by(ID) |>
+       filter(TIME <= min(TIME[EVENT %in% c(term_ind, cens_ind)], Inf)) |>
+       ungroup()
+
+     if(any(check_multiples$n_term > 1) & any(check_multiples$n_cens == 0)){
+       cat("Note: Multiple terminal events in at least 1 subject. First terminal event used.\n")
+     }
+     if(any(check_multiples$n_cens > 1) & any(check_multiples$n_term == 0)){
+       cat("Note: Multiple censor times in at least 1 subject. First censoring event used.\n")
+     }
+     if(any(check_multiples$n_term > 0 & check_multiples$n_cens > 0)){
+       cat("Note: At least 1 subject has both terminal and censor event. First terminal or censoring event used.\n")
+     }
+     }
+
 
    # Create numerical ID map
    x <- x |> mutate(i_key = as.integer(as.factor(ID)))
@@ -141,11 +157,12 @@
                       uj)
 
    # 2. Compute Variance (Using Optimized C++ Function)
+   surv_squared <- colMeans(s_table)^2
    v_vector <- varvec(
      W = W_valid,
      uj = uj,
      pj = pj,
-     s_table = s_table,
+     s_sq = surv_squared,
      censor_times = all_cens_times,
      n_riskset = n_riskset,
      n = n,

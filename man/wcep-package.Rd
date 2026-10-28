@@ -20,6 +20,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Sarah Rathwell \email{srathwel@ualberta.ca} (\href{https://orcid.org/0000-0003-3176-994X}{ORCID})
   \item Jeffrey Bakal \email{jbakal@ualberta.ca} (\href{https://orcid.org/0000-0002-3658-2554}{ORCID})
   \item Cynthia Westerhout \email{cindy.westerhout@ualberta.ca} (\href{https://orcid.org/0000-0003-1082-5981}{ORCID})
   \item Caroline Falvey \email{caroline.falvey@duke.edu}

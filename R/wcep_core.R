@@ -8,7 +8,7 @@
 # Authors: Majid Nabipoor, Jeff Bakal
 # revised: Sep. 2019, Jan. 2020, Oct. 2020
 
- wcep_core <- function(x, ew, alpha) {
+ wcep_core <- function(x, ew, alpha, simplify) {
 
    out <- list()
    class(out) <- "wcep"
@@ -53,9 +53,25 @@
        n_cens = sum(EVENT == cens_ind, na.rm=TRUE)
      )
 
-   if(any(check_multiples$n_term > 1)) stop("Error: Multiple terminal events in at least 1 subject.")
-   if(any(check_multiples$n_cens > 1)) stop("Error: Multiple censor times in at lesat 1 subject.")
-   if(any(check_multiples$n_term > 0 & check_multiples$n_cens > 0)) stop("Error: At least 1 subject has both terminal and censor event.")
+   #filter out all events after the first terminal/censor event and report
+   if(any(check_multiples$n_term > 1) | any(check_multiples$n_cens > 1) |
+      any(check_multiples$n_term > 0 & check_multiples$n_cens > 0)){
+     x <- x |>
+       group_by(ID) |>
+       filter(TIME <= min(TIME[EVENT %in% c(term_ind, cens_ind)], Inf)) |>
+       ungroup()
+
+     if(any(check_multiples$n_term > 1) & any(check_multiples$n_cens == 0)){
+       cat("Note: Multiple terminal events in at least 1 subject. First terminal event used.\n")
+     }
+     if(any(check_multiples$n_cens > 1) & any(check_multiples$n_term == 0)){
+       cat("Note: Multiple censor times in at least 1 subject. First censoring event used.\n")
+     }
+     if(any(check_multiples$n_term > 0 & check_multiples$n_cens > 0)){
+       cat("Note: At least 1 subject has both terminal and censor event. First terminal or censoring event used.\n")
+     }
+     }
+
 
    # Create numerical ID map
    x <- x |> mutate(i_key = as.integer(as.factor(ID)))
@@ -130,34 +146,55 @@
    uj <- as.vector(pj %*% W_valid)
 
    # ============================================================================
-   # CALL C++ FUNCTIONS
+   # CALL SURV/VAR FUNCTIONS
    # ============================================================================
 
-   # 1. Compute Survival Table
-   s_table <- survtab(tmat,
-                      n,
-                      max_time,
-                      all_cens_times,
-                      uj)
+   if(simplify == FALSE){
+     # 1. Compute Survival Table
+     s_table <- survtab(tmat,
+                        n,
+                        max_time,
+                        all_cens_times,
+                        uj)
 
-   # 2. Compute Variance (Using Optimized C++ Function)
-   v_vector <- varvec(
-     W = W_valid,
-     uj = uj,
-     pj = pj,
-     s_table = s_table,
-     censor_times = all_cens_times,
-     n_riskset = n_riskset,
-     n = n,
-     max_time = max_time
-   )
+     # 2. Compute Variance (Using Optimized C++ Function)
+     surv_squared <- colMeans(s_table)^2
+     v_vector <- varvec(
+       W = W_valid,
+       uj = uj,
+       pj = pj,
+       s_sq = surv_squared,
+       censor_times = all_cens_times,
+       n_riskset = n_riskset,
+       n = n,
+       max_time = max_time
+     )
 
-   # ============================================================================
-   # OUTPUT FORMATTING
-   # ============================================================================
-   out$life_table <- s_table
-   out$survival_probabilities <- colMeans(s_table)
-   out$variance <- v_vector
+     out$life_table <- s_table
+     out$survival_probabilities <- colMeans(s_table)
+     out$variance <- v_vector
+   }
+
+   if(simplify == TRUE){
+     # 1. Compute Survival Vector
+     surv_simple = cumprod(1-uj)
+
+     # 2. Compute Simplified Variance (Using Optimized C++ Function)
+     surv_squared = surv_simple^2
+     v_vector = varvec_simple(
+       W = W_valid,
+       uj = uj,
+       pj = pj,
+       s_sq = surv_squared,
+       n_riskset = n_riskset,
+       max_time = max_time
+     )
+
+     out$life_table <- NULL
+     out$survival_probabilities <- surv_simple
+     out$variance <- v_vector
+   }
+
 
    z <- qnorm(1 - alpha / 2)
    out$upper <- pmin(pmax(out$survival_probabilities + z * sqrt(v_vector), 0), 1)

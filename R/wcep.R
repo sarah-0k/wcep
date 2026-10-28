@@ -25,6 +25,12 @@ NULL
 #' if it is not specified, by default is 0.05.
 #'
 #' @param split A logical value of T or F which allows to compare two groups.
+#' Default is FALSE.
+#'
+#' @param simplify A logical value of T or F which determines whether to use the
+#' simplified event-weighted survival and variance estimates (simplify = TRUE) or
+#' the participant-weighted survival and variance estimates (simplify = FALSE).
+#' Default is FALSE.
 #'
 #' @section References:
 #' Bakal J., Westerhout C. M., Armstrong P. W. (2015) Impact of weighted composite
@@ -39,12 +45,12 @@ NULL
 #' data(toyexample)
 #' #event weights
 #' EW <- data.frame(event = c('CHF','DTH','SHK','REMI','N'), weight = c(0.3,1,0.5,0.2,0))
-#' res1 <- wcep(toyexample, EW)
+#' res1 <- wcep(toyexample[,1:3], EW, split = FALSE, simplify = FALSE)
 #' str(res1)
 #' res1$survival_probabilities
 #' plot(res1)
 #' #comparing two genders
-#' res2 <- wcep(toyexample, EW, split=TRUE)
+#' res2 <- wcep(toyexample, EW, split=TRUE, simplify = FALSE)
 #' plot(res2)
 
 #' @author
@@ -78,6 +84,9 @@ NULL
    }
    if ( split == TRUE && length(unique(x[,4])) != 2 ) {
      return(noquote("Error: The last column should have two levels" ))
+   }
+   if ( !(simplify %in% c(TRUE, FALSE, T, F)) ) {
+     return(noquote("Error: Simplify argument must be TRUE or FALSE" ))
    }
 
 

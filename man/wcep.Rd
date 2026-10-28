@@ -25,7 +25,13 @@ at the maximum follow time otherwise listed in the data.}
 \item{alpha}{A numeric value between 0-1 which specifies the confidence level,
 if it is not specified, by default is 0.05.}
 
-\item{split}{A logical value of T or F which allows to compare two groups.}
+\item{split}{A logical value of T or F which allows to compare two groups.
+Default is FALSE.}
+
+\item{simplify}{A logical value of T or F which determines whether to use the
+simplified event-weighted survival and variance estimates (simplify = TRUE) or
+the participant-weighted survival and variance estimates (simplify = FALSE).
+Default is FALSE.}
 }
 \description{
 Analyze given data frame and return Kaplan-Meier survival probabilities together with the specified confidence interval.
@@ -46,12 +52,12 @@ estimate of the survival and variance using a weighted composite endpoint,
 data(toyexample)
 #event weights
 EW <- data.frame(event = c('CHF','DTH','SHK','REMI','N'), weight = c(0.3,1,0.5,0.2,0))
-res1 <- wcep(toyexample, EW)
+res1 <- wcep(toyexample[,1:3], EW, split = FALSE, simplify = FALSE)
 str(res1)
 res1$survival_probabilities
 plot(res1)
 #comparing two genders
-res2 <- wcep(toyexample, EW, split=TRUE)
+res2 <- wcep(toyexample, EW, split=TRUE, simplify = FALSE)
 plot(res2)
 }
 \seealso{

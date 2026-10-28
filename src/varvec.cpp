@@ -7,143 +7,77 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 
 NumericVector varvec(NumericVector W,
-                      NumericVector uj,
-                      NumericMatrix pj,
-                      NumericVector s_sq,
-                      IntegerVector censor_times,
-                      IntegerVector n_riskset,
-                      int n,
-                      int max_time,
-                      bool display_progress = true) {
+                     NumericVector uj,
+                     NumericMatrix pj,
+                     NumericVector s_sq,
+                     IntegerVector censor_times,
+                     IntegerVector n_riskset,
+                     int n,
+                     int max_time,
+                     bool display_progress = true) {
 
   int k = W.size();
-  NumericVector term1_j(max_time);
-  NumericVector term2_j(max_time);
-  NumericVector term3_j(max_time);
+  Progress p(max_time*2 + n, display_progress);
 
-  // Helper vector to avoid repeated memory allocation in loops
-  NumericVector pj_t(k);
+  // ---- Step 1: per-time quantities a_t, b_t and their cumulative sums ----
+  // A[m] = sum_{t=1..m} a_t,  B[m] = sum_{t=1..m} b_t  (A[0] = B[0] = 0)
+  std::vector<double> A(max_time + 1, 0.0), B(max_time + 1, 0.0);
 
-  //variance progress bar where each term is 1/3 bar plus aggregate portion
-  Progress p(max_time*4, display_progress);
-
-  // ========== TERM 1: Greenwood-like component ==========
-  for (int j = 0; j < max_time; j++) {
-    double sum_i = 0.0;
-
-    for (int i = 0; i < n; i++) {
-      double sum_t = 0.0;
-      int upper_limit = std::min(j + 1, censor_times[i] - 1);
-
-      for (int t_val = 1; t_val <= upper_limit; t_val++) {
-        int t = t_val - 1; // 0-based index
-
-        // --- Matrix Multiplication Logic ---
-        for (int idx = 0; idx < k; idx++) pj_t[idx] = pj(t, idx);
-        double factor = pow(1.0 - uj[t], -2.0);
-
-        // Quadratic Form Calculation: t(W) %*% (diag(p) - p %*% t(p)) %*% W
-        double quad_form = 0.0;
-        for (int row = 0; row < k; row++) {
-          double temp_row = 0.0;
-          for (int col = 0; col < k; col++) {
-            double mat_val = (row == col) ? (pj_t[row] - pj_t[row] * pj_t[col]) : (-pj_t[row] * pj_t[col]);
-            temp_row += mat_val * W[col];
-          }
-          quad_form += W[row] * temp_row;
-        }
-        sum_t += factor * quad_form;
-      }
-      sum_i += sum_t;
+  for (int t = 0; t < max_time; t++) {
+    double sum_pW = 0.0, sum_pW2 = 0.0;
+    for (int m = 0; m < k; m++) {
+      double pw = pj(t, m) * W[m];
+      sum_pW  += pw;
+      sum_pW2 += pw * W[m];
     }
-    term1_j[j] = sum_i;
+    double quad_form = sum_pW2 - sum_pW * sum_pW;   // W'(diag(p) - pp')W
+    double d = 1.0 - uj[t];
+    double a_t = quad_form / (d * d);
 
-    p.increment(); // update progress
-  }
-
-  // ========== TERM 2: Correction for Censoring ==========
-  for (int j = 0; j < max_time; j++) {
-    int j_time = j + 1;
-    double sum_i = 0.0;
-
-    for (int i = 0; i < n; i++) {
-      // Only process if patient is censored on or before current time
-      if (censor_times[i] <= j_time) {
-        double sum_t = 0.0;
-
-        // Integrate from censoring time to current time
-        for (int t_val = censor_times[i]; t_val <= j_time; t_val++) {
-          int t = t_val - 1;
-
-          // --- Matrix Multiplication Logic (Same as Term 1) ---
-          for (int idx = 0; idx < k; idx++) pj_t[idx] = pj(t, idx);
-          double factor = pow(1.0 - uj[t], -2.0);
-
-          double quad_form = 0.0;
-          for (int row = 0; row < k; row++) {
-            double temp_row = 0.0;
-            for (int col = 0; col < k; col++) {
-              double mat_val = (row == col) ? (pj_t[row] - pj_t[row] * pj_t[col]) : (-pj_t[row] * pj_t[col]);
-              temp_row += mat_val * W[col];
-            }
-            quad_form += W[row] * temp_row;
-          }
-          // Note: Divided by n_riskset[t] here
-          sum_t += (factor * quad_form) / n_riskset[t];
-        }
-        sum_i += sum_t;
-      }
-    }
-    term2_j[j] = sum_i;
-
-    p.increment(); // update progress
-  }
-
-  // ========== TERM 3: Covariance Component  ==========
-  // Updated to include covariance between censored and uncensored observations
-  for (int j = 0; j < max_time; j++) {
-    int j_time = j + 1;
-    double sum_i = 0.0;
-    for (int i = 0; i < n; i++) {
-      // Only process if patient is censored on or before current time
-      if (censor_times[i] <= j_time) {
-        double sum_t = 0.0;
-        // Integrate from censoring time to current time
-        for (int t_val = censor_times[i]; t_val <= j_time; t_val++) {
-          int t = t_val - 1;
-          // --- Matrix Multiplication Logic (Same as Term 1) ---
-          for (int idx = 0; idx < k; idx++) pj_t[idx] = pj(t, idx);
-          double factor = pow(1.0 - uj[t], -2.0);
-          double quad_form = 0.0;
-          for (int row = 0; row < k; row++) {
-            double temp_row = 0.0;
-            for (int col = 0; col < k; col++) {
-              double mat_val = (row == col) ? (pj_t[row] - pj_t[row] * pj_t[col]) : (-pj_t[row] * pj_t[col]);
-              temp_row += mat_val * W[col];
-            }
-            quad_form += W[row] * temp_row;
-          }
-          // Note: Divided by n_riskset[t] here
-          sum_t += (factor * quad_form) / n_riskset[t];
-        }
-
-        sum_i += sum_t * (n-i);
-      }
-    }
-    term3_j[j] = sum_i;
-
+    A[t + 1] = A[t] + a_t;
+    B[t + 1] = B[t] + a_t / n_riskset[t];
     p.increment();
   }
 
-  // ========== Final Variance Aggregation ==========
-  double n_squared = (double)n * n;
-  NumericVector total_var(max_time);
-
-  for (int j = 0; j < max_time; j++) {
-    total_var[j] = (s_sq[j] / n_squared) * (term1_j[j] + term2_j[j] + 2.0 * term3_j[j]);
-
-    p.increment(); // update progress
+  // ---- Step 2: bucket subjects by censor time (one pass over n) ----
+  // cnt[c]  = number of subjects with censor time c
+  // wsum[c] = sum of (n - i) over those subjects (0-based i, as in the original)
+  std::vector<double> cnt(max_time + 1, 0.0), wsum(max_time + 1, 0.0);
+  for (int i = 0; i < n; i++) {
+    int c = censor_times[i];
+    if (c >= 1 && c <= max_time) {
+      cnt[c]  += 1.0;
+      wsum[c] += (double)(n - i);
+    }
+    p.increment();
   }
+
+  // ---- Step 3: running totals over subjects with c_i <= j ----
+  NumericVector total_var(max_time);
+  double n_squared = (double)n * n;
+
+  double cntLE = 0.0;   // #{c_i <= j}
+  double wLE   = 0.0;   // sum (n-i) for c_i <= j
+  double SA    = 0.0;   // sum A(c_i - 1)
+  double SB    = 0.0;   // sum B(c_i - 1)
+  double SWB   = 0.0;   // sum (n-i) * B(c_i - 1)
+
+  for (int j = 1; j <= max_time; j++) {
+    // add subjects whose censor time is exactly j
+    cntLE += cnt[j];
+    wLE   += wsum[j];
+    SA    += cnt[j]  * A[j - 1];
+    SB    += cnt[j]  * B[j - 1];
+    SWB   += wsum[j] * B[j - 1];
+
+    double term1 = A[j] * (n - cntLE) + SA;
+    double term2 = B[j] * cntLE - SB;
+    double term3 = B[j] * wLE   - SWB;
+
+    total_var[j - 1] = (s_sq[j - 1] / n_squared) * (term1 + term2 + 2.0 * term3);
+    p.increment();
+  }
+
 
   return total_var;
 }

@@ -8,7 +8,7 @@
 # Authors: Majid Nabipoor, Jeff Bakal
 # revised: Sep. 2019, Jan. 2020, Oct. 2020
 
- wcep_core <- function(x, ew, alpha) {
+ wcep_core <- function(x, ew, alpha, simplify) {
 
    out <- list()
    class(out) <- "wcep"
@@ -146,35 +146,55 @@
    uj <- as.vector(pj %*% W_valid)
 
    # ============================================================================
-   # CALL C++ FUNCTIONS
+   # CALL SURV/VAR FUNCTIONS
    # ============================================================================
 
-   # 1. Compute Survival Table
-   s_table <- survtab(tmat,
-                      n,
-                      max_time,
-                      all_cens_times,
-                      uj)
+   if(simplify == FALSE){
+     # 1. Compute Survival Table
+     s_table <- survtab(tmat,
+                        n,
+                        max_time,
+                        all_cens_times,
+                        uj)
 
-   # 2. Compute Variance (Using Optimized C++ Function)
-   surv_squared <- colMeans(s_table)^2
-   v_vector <- varvec(
-     W = W_valid,
-     uj = uj,
-     pj = pj,
-     s_sq = surv_squared,
-     censor_times = all_cens_times,
-     n_riskset = n_riskset,
-     n = n,
-     max_time = max_time
-   )
+     # 2. Compute Variance (Using Optimized C++ Function)
+     surv_squared <- colMeans(s_table)^2
+     v_vector <- varvec(
+       W = W_valid,
+       uj = uj,
+       pj = pj,
+       s_sq = surv_squared,
+       censor_times = all_cens_times,
+       n_riskset = n_riskset,
+       n = n,
+       max_time = max_time
+     )
 
-   # ============================================================================
-   # OUTPUT FORMATTING
-   # ============================================================================
-   out$life_table <- s_table
-   out$survival_probabilities <- colMeans(s_table)
-   out$variance <- v_vector
+     out$life_table <- s_table
+     out$survival_probabilities <- colMeans(s_table)
+     out$variance <- v_vector
+   }
+
+   if(simplify == TRUE){
+     # 1. Compute Survival Vector
+     surv_simple = cumprod(1-uj)
+
+     # 2. Compute Simplified Variance (Using Optimized C++ Function)
+     surv_squared = surv_simple^2
+     v_vector = varvec_simple(
+       W = W_valid,
+       uj = uj,
+       pj = pj,
+       s_sq = surv_squared,
+       n_riskset = n_riskset,
+       max_time = max_time
+     )
+
+     out$life_table <- NULL
+     out$survival_probabilities <- surv_simple
+     out$variance <- v_vector
+   }
+
 
    z <- qnorm(1 - alpha / 2)
    out$upper <- pmin(pmax(out$survival_probabilities + z * sqrt(v_vector), 0), 1)

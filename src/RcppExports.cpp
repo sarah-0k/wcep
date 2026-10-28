@@ -45,10 +45,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// varvec_simple
+NumericVector varvec_simple(NumericVector W, NumericVector uj, NumericMatrix pj, NumericVector s_sq, IntegerVector n_riskset, int max_time, bool display_progress);
+RcppExport SEXP _wcep_varvec_simple(SEXP WSEXP, SEXP ujSEXP, SEXP pjSEXP, SEXP s_sqSEXP, SEXP n_risksetSEXP, SEXP max_timeSEXP, SEXP display_progressSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type W(WSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type uj(ujSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type pj(pjSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type s_sq(s_sqSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type n_riskset(n_risksetSEXP);
+    Rcpp::traits::input_parameter< int >::type max_time(max_timeSEXP);
+    Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
+    rcpp_result_gen = Rcpp::wrap(varvec_simple(W, uj, pj, s_sq, n_riskset, max_time, display_progress));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_wcep_survtab", (DL_FUNC) &_wcep_survtab, 6},
     {"_wcep_varvec", (DL_FUNC) &_wcep_varvec, 9},
+    {"_wcep_varvec_simple", (DL_FUNC) &_wcep_varvec_simple, 7},
     {NULL, NULL, 0}
 };
 

@@ -62,7 +62,7 @@ NULL
 #' @import coin dplyr tidyr RcppProgress
 #' @export
 
- wcep <- function(x, EW, alpha = 0.05 , split = FALSE){
+ wcep <- function(x, EW, alpha = 0.05 , split = FALSE, simplify = FALSE){
 
    if (alpha >= 1 | alpha <= 0) {
      return(noquote("Error: value of alpha should be between 0 and 1"))
@@ -80,11 +80,13 @@ NULL
      return(noquote("Error: The last column should have two levels" ))
    }
 
+
    res <- structure(list(), class = "wcep")
 
    if(split == FALSE) {
-     res <- wcep_core(x[, 1:3], EW, alpha)
+     res <- wcep_core(x[, 1:3], EW, alpha, simplify)
    }
+
    if(split == TRUE) {
 
      groups <- unique(x[, 4])
@@ -98,7 +100,7 @@ NULL
          dat_i[,2] = as.factor(dat_i[,2])
 
          res[[paste0(groups[i], sep="")]] <-
-           wcep_core(dat_i, EW, alpha)
+           wcep_core(dat_i, EW, alpha, simplify)
        }
      }
    res

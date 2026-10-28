@@ -9,3 +9,7 @@ varvec <- function(W, uj, pj, s_sq, censor_times, n_riskset, n, max_time, displa
     .Call('_wcep_varvec', PACKAGE = 'wcep', W, uj, pj, s_sq, censor_times, n_riskset, n, max_time, display_progress)
 }
 
+varvec_simple <- function(W, uj, pj, s_sq, n_riskset, max_time, display_progress = TRUE) {
+    .Call('_wcep_varvec_simple', PACKAGE = 'wcep', W, uj, pj, s_sq, n_riskset, max_time, display_progress)
+}
+

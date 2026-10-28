@@ -12,42 +12,56 @@ NumericVector survtab(NumericMatrix Xr,
                       NumericVector U,
                       bool display_progress = true) {
 
-  double m  = Xr.nrow();
-  // Optimization: "nocens" matrix removed to save memory.
-  // We only need the current cumulative probability state.
+  const int m = Xr.nrow();
   NumericMatrix lifemat(n, t);
-  NumericVector current_nocens(n, 1.0); // Tracks "no-censoring" survival prob
+  double* L = lifemat.begin();                 // column-major: L[i + j*n]
+  std::fill(L, L + (size_t)n * t, 1.0);        // holds per-day event factors first
+
+  const double* X = Xr.begin();                // column-major: X[v + i*m]
+  const double* w = X + (size_t)n * m;         // weights live in column n (0-based)
+
 
   // initialize progress bar of length t
-  Progress p(t, display_progress);
+  Progress p(n + t, display_progress);
 
-  // Loop through time (j) and patients (i)
-  for(int j = 0; j < t; ++j) {
-
-    for(int i = 0; i < n; ++i) {
-
-      // Check if any event occurred at time j+1 for patient i
-      for(int v = 0; v < m; ++v) {
-        // Xr stores event times. Check if event time matches current day
-        if (Xr(v,i) == j + 1) {
-          // Apply weight penalty: S(t) = S(t-1) * (1 - weight)
-          current_nocens[i] *= (1.0 - Xr(v,n));
+  // ---- Pass 1: one scan of the events; contiguous reads down each column ----
+  for (int i = 0; i < n; ++i) {
+    const double* xi = X + (size_t)i * m;
+    for (int v = 0; v < m; ++v) {
+      const double tm = xi[v];
+      if (tm >= 1.0 && tm <= t) {              // also rejects NaN
+        const int d = (int)tm;
+        if ((double)d == tm) {                 // same as original equality test
+          L[i + (size_t)(d - 1) * n] *= (1.0 - w[v]);
         }
       }
-
-      // Censoring Logic
-      if(j < (C[i]-1)){
-        // Patient is NOT yet censored: use calculated probability
-        lifemat(i,j) = current_nocens[i];
-      }
-      else {
-        // Patient IS censored: Impute using Mean Risk (U) of the risk set
-        // Recursive formula: Prev_Day * (1 - Mean_Risk)
-        double prev = (j == 0) ? 1.0 : lifemat(i,j-1);
-        lifemat(i,j) = prev * (1.0 - U[j]);
-      }
     }
-    p.increment(); // update progress
+    p.increment();
+  }
+
+  // ---- Precompute censoring day per patient (j < cd[i] means not yet censored) ----
+  std::vector<int> cd(n);
+  for (int i = 0; i < n; ++i) cd[i] = (int)C[i] - 1;
+
+  // ---- Pass 2: day-major sweep with a single running value per patient ----
+  // cur[i] = last value written for patient i. Uncensored: multiply by the day's
+  // event factor. Censored: multiply by (1 - U[j]). Since the censored recursion
+  // starts from lifemat(i, j-1), which equals cur[i], one array is enough.
+  std::vector<double> cur(n, 1.0);
+  double* c = cur.data();
+  const int* cdp = cd.data();
+
+
+  for (int j = 0; j < t; ++j) {
+    double* col = L + (size_t)j * n;           // contiguous column for day j
+    const double oneMinusU = 1.0 - U[j];
+
+    for (int i = 0; i < n; ++i) {
+      const double mult = (j < cdp[i]) ? col[i] : oneMinusU;
+      c[i] *= mult;
+      col[i] = c[i];
+    }
+    p.increment();
   }
 
   return lifemat;

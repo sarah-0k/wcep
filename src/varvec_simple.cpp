@@ -18,29 +18,30 @@ NumericVector varvec_simple(NumericVector W,
   NumericVector total_var(max_time);
 
   //variance progress bar
-  Progress p(max_time, display_progress);
+  Progress p(k + max_time, display_progress);
 
   // ========== Simple Event Weighted Variance ==========
-  double cum_sum = 0.0;  // running sum over t = 1..j
+  const double* w   = W.begin();
+  const double* P   = pj.begin();     // column-major: P[j + m * nrow]
+  const int     nr  = pj.nrow();
 
-  for (int j = 0; j < max_time; j++) {
-
-    // Term for t = j (0-based), added to the running total
-    double factor = 1.0 / ((1.0 - uj[j]) * (1.0 - uj[j]));
-
-    // Quadratic form: sum_m p_m W_m^2 - (sum_m p_m W_m)^2
-    double sum_pW2 = 0.0;
-    double sum_pW  = 0.0;
-    for (int m = 0; m < k; m++) {
-      double pw = pj(j, m) * W[m];
-      sum_pW  += pw;
-      sum_pW2 += pw * W[m];
+  // Column-major-friendly pass: accumulate per-time sums, one column of pj at a time
+  std::vector<double> sum_pW(max_time, 0.0), sum_pW2(max_time, 0.0);
+  for (int m = 0; m < k; m++) {
+    const double* col = P + (size_t)m * nr;
+    const double wm = w[m], wm2 = wm * wm;
+    for (int j = 0; j < max_time; j++) {
+      sum_pW[j]  += col[j] * wm;
+      sum_pW2[j] += col[j] * wm2;
     }
-    double quad_form = sum_pW2 - sum_pW * sum_pW;
+    p.increment();
+  }
 
-    cum_sum += factor * quad_form / n_riskset[j];
-
-    // final variance term
+  double cum_sum = 0.0;
+  for (int j = 0; j < max_time; j++) {
+    const double d = 1.0 - uj[j];
+    const double quad_form = sum_pW2[j] - sum_pW[j] * sum_pW[j];
+    cum_sum += quad_form / (d * d * n_riskset[j]);
     total_var[j] = s_sq[j] * cum_sum;
 
     p.increment();

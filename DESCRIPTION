@@ -34,7 +34,6 @@ Imports:
          grDevices (>= 3.6.1),
          stats (>= 3.6.1),
          tidyr (>= 1.0.0)
-RoxygenNote: 7.3.3
 Suggests: 
     testthat (>= 3.0.0)
 Collate: 
@@ -46,3 +45,4 @@ Collate:
     'wcep_core.R'
     'wcep.R'
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0

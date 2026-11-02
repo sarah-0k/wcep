@@ -11,10 +11,11 @@
   lty = NULL,
   lwd = NULL,
   xlab = " ",
-  ylab = "Survival Probability",
+  ylab = "Event Weighted Survival Probability",
   xlim = NULL,
   ylim = NULL,
   cex = NULL,
+  linecol = NULL,
   ...
 )
 }
@@ -38,6 +39,8 @@
 \item{ylim}{second axis limits}
 
 \item{cex}{legend font size}
+
+\item{linecol}{color or vector of two colors for plotting}
 
 \item{...}{other parameters of generic "plot" have no use here
 setOldClass("wcep")}

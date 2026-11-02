@@ -60,10 +60,11 @@ NULL
 #' Sarah Rathwell: srathwel@@ualberta.ca
 #' @seealso \code{\link[survival:coxph]{coxph}} for Anderson Gill model
 #' @importFrom stats qnorm t.test ave
-#' @importFrom graphics plot points polygon legend
-#' @importFrom grDevices rgb
+#' @importFrom graphics plot points polygon legend grid
+#' @importFrom grDevices rgb colors
 #' @importFrom stringr str_extract str_remove
 #' @importFrom Rcpp sourceCpp
+#' @importFrom scales alpha
 #' @useDynLib wcep
 #' @import coin dplyr tidyr RcppProgress
 #' @export

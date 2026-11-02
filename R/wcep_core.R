@@ -190,7 +190,7 @@
        max_time = max_time
      )
 
-     out$life_table <- NULL
+     out$life_table <- NA
      out$survival_probabilities <- surv_simple
      out$variance <- v_vector
    }

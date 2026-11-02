@@ -33,7 +33,8 @@ Imports:
          graphics (>= 3.6.1),
          grDevices (>= 3.6.1),
          stats (>= 3.6.1),
-         tidyr (>= 1.0.0)
+         tidyr (>= 1.0.0),
+         scales (>= 1.4.0)
 Suggests: 
     testthat (>= 3.0.0)
 Collate: 

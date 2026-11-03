@@ -10,7 +10,7 @@ NumericVector varvec_simple(NumericVector W,
                             NumericVector uj,
                             NumericMatrix pj,
                             NumericVector s_sq,
-                            IntegerVector n_riskset,
+                            NumericVector n_riskset,
                             int max_time,
                             bool display_progress = true) {
 

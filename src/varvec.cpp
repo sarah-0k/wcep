@@ -11,7 +11,7 @@ NumericVector varvec(NumericVector W,
                      NumericMatrix pj,
                      NumericVector s_sq,
                      IntegerVector censor_times,
-                     IntegerVector n_riskset,
+                     NumericVector n_riskset,
                      int n,
                      int max_time,
                      bool display_progress = true) {

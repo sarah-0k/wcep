@@ -1,5 +1,7 @@
+# wcep (development version)
 
-# wcep (development version 1.3.902)
+
+# wcep (development version 1.0.3.902)
 #Major changes
 * Full rewrite of data processing core code to use data.table functionality.
   - Processing speeds cut by ~50-80%.

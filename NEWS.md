@@ -1,4 +1,3 @@
-# wcep (development version)
 
 # wcep (development version 1.3.902)
 #Major changes

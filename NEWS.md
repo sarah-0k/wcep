@@ -1,3 +1,5 @@
+# wcep (development version)
+
 # wcep (development version 1.3.902)
 #Major changes
 * Full rewrite of data processing core code to use data.table functionality.

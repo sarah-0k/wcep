@@ -33,7 +33,7 @@
       }
     }
 
-      if(length(x) == 5) {
+      if(length(x) > 2) {
         color1 <- if (is.null(linecol)) "dodgerblue4" else linecol[1]
         timelab <- 0:length(x$survival_probabilities)
         ymin <- round(max(min (x$lower)-0.0499,0)-0.05, 1)

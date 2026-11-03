@@ -11,23 +11,23 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // survtab
-NumericVector survtab(NumericMatrix Xr, int n, int t, NumericVector C, NumericVector U, bool display_progress);
-RcppExport SEXP _wcep_survtab(SEXP XrSEXP, SEXP nSEXP, SEXP tSEXP, SEXP CSEXP, SEXP USEXP, SEXP display_progressSEXP) {
+NumericVector survtab(NumericMatrix Xr, int n, int max_time, IntegerVector censor_times, NumericVector uj, bool display_progress);
+RcppExport SEXP _wcep_survtab(SEXP XrSEXP, SEXP nSEXP, SEXP max_timeSEXP, SEXP censor_timesSEXP, SEXP ujSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type Xr(XrSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type t(tSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type C(CSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type U(USEXP);
+    Rcpp::traits::input_parameter< int >::type max_time(max_timeSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type censor_times(censor_timesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type uj(ujSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
-    rcpp_result_gen = Rcpp::wrap(survtab(Xr, n, t, C, U, display_progress));
+    rcpp_result_gen = Rcpp::wrap(survtab(Xr, n, max_time, censor_times, uj, display_progress));
     return rcpp_result_gen;
 END_RCPP
 }
 // varvec
-NumericVector varvec(NumericVector W, NumericVector uj, NumericMatrix pj, NumericVector s_sq, IntegerVector censor_times, IntegerVector n_riskset, int n, int max_time, bool display_progress);
+NumericVector varvec(NumericVector W, NumericVector uj, NumericMatrix pj, NumericVector s_sq, IntegerVector censor_times, NumericVector n_riskset, int n, int max_time, bool display_progress);
 RcppExport SEXP _wcep_varvec(SEXP WSEXP, SEXP ujSEXP, SEXP pjSEXP, SEXP s_sqSEXP, SEXP censor_timesSEXP, SEXP n_risksetSEXP, SEXP nSEXP, SEXP max_timeSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -37,7 +37,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix >::type pj(pjSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type s_sq(s_sqSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type censor_times(censor_timesSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type n_riskset(n_risksetSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type n_riskset(n_risksetSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< int >::type max_time(max_timeSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
@@ -46,7 +46,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // varvec_simple
-NumericVector varvec_simple(NumericVector W, NumericVector uj, NumericMatrix pj, NumericVector s_sq, IntegerVector n_riskset, int max_time, bool display_progress);
+NumericVector varvec_simple(NumericVector W, NumericVector uj, NumericMatrix pj, NumericVector s_sq, NumericVector n_riskset, int max_time, bool display_progress);
 RcppExport SEXP _wcep_varvec_simple(SEXP WSEXP, SEXP ujSEXP, SEXP pjSEXP, SEXP s_sqSEXP, SEXP n_risksetSEXP, SEXP max_timeSEXP, SEXP display_progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -55,7 +55,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type uj(ujSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type pj(pjSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type s_sq(s_sqSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type n_riskset(n_risksetSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type n_riskset(n_risksetSEXP);
     Rcpp::traits::input_parameter< int >::type max_time(max_timeSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
     rcpp_result_gen = Rcpp::wrap(varvec_simple(W, uj, pj, s_sq, n_riskset, max_time, display_progress));

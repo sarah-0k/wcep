@@ -1,7 +1,7 @@
 Package: wcep
 Type: Package
 Title: Survival Analysis for Weighted Composite Endpoints
-Version: 1.0.3.9000
+Version: 1.0.3.9001
 Authors@R: c(person("Jeffrey", "Bakal", email="jbakal@ualberta.ca", role=c("aut"),
            comment=c(ORCID = "0000-0002-3658-2554")),
            person("Cynthia", "Westerhout", email="cindy.westerhout@ualberta.ca", role=c("aut"),

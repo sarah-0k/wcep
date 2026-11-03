@@ -28,13 +28,11 @@ LinkingTo:
          RcppProgress
 Imports: 
          coin  (>= 1.3-1),
-         dplyr (>= 1.1.0),
-         stringr (>= 1.5.2),
          graphics (>= 3.6.1),
          grDevices (>= 3.6.1),
          stats (>= 3.6.1),
-         tidyr (>= 1.0.0),
-         scales (>= 1.4.0)
+         scales (>= 1.4.0),
+         data.table(>= 1.18.2.1)
 Suggests: 
     testthat (>= 3.0.0)
 Collate: 

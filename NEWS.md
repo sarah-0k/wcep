@@ -1,7 +1,21 @@
-# wcep (development version)
+# wcep (development version 1.3.902)
+#Major changes
+* Full rewrite of data processing core code to use data.table functionality.
+  - Processing speeds cut by ~50-80%.
+  - Ability to handle slightly larger data before memory limit reached.
+* Avoids slower use of tidyr and dplyr. 
+* Retire nam() function (same functionality now handled internally).
+* Rewrite of error handling to better report user input errors.
+
+# wcep (development version 1.0.3.901)
+## Major changes
+* Fixed covariance estimation.
+* Added simplified survival and variance estimates (group event weighted).
+* Improved efficiency of all C++ functions.
+* Added capabilities to plot using simplified estimates.
+* Updated plot code to allow choice of color scheme.
 
 # wcep (development version 1.0.3.900)
-
 ## Major updates and breaking changes
 * Adding ability to handle censoring.
 * Update to survival and variance estimators to run in C++.

@@ -3,26 +3,32 @@ NULL
 
 #'  Analysis of weighted composite endpoints
 #'
-#'  Analyze given data frame and return Kaplan-Meier survival probabilities together with the specified confidence interval.
-#'  \code{wcep} modifies Kaplan-Meier curve by taking into account severity weights of different event. Alternative methods are Anderson Gill model and win ratio of composite outcomes.The function takes event dataset and user-specified severity weights  to generate a modified Kaplan-Meier curve and comparison statistics based on the weighted composite endpoint method.  The user supplies the event data set, the weights, and the factor to split on . The package will generate the weighted survival curve, confidence interval and test the differences between the two groups.
+#'  Analyze given data frame and return Kaplan-Meier survival probabilities together
+#'  with the specified confidence interval.
+#'  \code{wcep} modifies Kaplan-Meier curve by taking into account severity weights of different event.
+#'  Alternative methods are Anderson Gill model and win ratio of composite outcomes.The function takes
+#'  event dataset and user-specified severity weights  to generate a modified Kaplan-Meier curve and
+#'  comparison statistics based on the weighted composite endpoint method.  The user supplies the event
+#'  data set, the weights, and the factor to split on . The package will generate the weighted survival curve,
+#'  confidence interval and test the differences between the two groups.
 #'
-#' @param x This data frame usually has 3 columns. The first column specifies patient ID,
-#' which is a character or numeric vector, the second column is a factor with character values
-#' of event types. The third column is a numeric vector of event times. If split = TRUE,
-#' then the forth column is a character vector of split groups of at most two groups,
-#' like gender.
+#' @param data This data.frame, tibble, or data.table usually has 3 columns. The first column specifies patient ID,
+#' which is a character, factor, or numeric vector, the second column specifies event type, which is a
+#' character, factor, or numeric. The third column specifies event time, which is a whole number numeric. The
+#' maximum follow time for administrative censoring and plotting will be set to the max value of this column.
+#' IThe forth (optional) column is a character, factor, or numeric, specifying group level. Currently, two unique group levels
+#' can be used (e.g., Male and Female). The grouping column will only be used when SPLIT = TRUE.
 #'
-#' @param EW This data frame has two columns. The first column
+#' @param weights This data.frame, tibble, or data.table has two columns. The first column
 #' specifies a character vector of event types. The second column specify weights.
-#' The naming of event types in x and EW should be exactly similar. Events with
-#' weight = 1 are terminal events; events with weight = 0 are censoring events.
-#' Data should contain at most one terminal event type and one censoring event
-#' type. IDs should have at most either one terminal event type or one censoring
-#' event type. IDs without either a terminal or censor event listed will be censored
-#' at the maximum follow time otherwise listed in the data.
+#' The naming of event types should match those in the second column of the data object.
+#' Weights must be numeric, with values between 0 and 1. Events with weight = 1 are terminal events;
+#' events with weight = 0 are censoring events. IDs with multiple terminal, censor, or a combination
+#' of terminal and censoring event types will use the first observed event. IDs without either
+#' a terminal or censor event listed will be censored at the maximum follow time.
 #'
-#' @param alpha A numeric value between 0-1 which specifies the confidence level,
-#' if it is not specified, by default is 0.05.
+#' @param alpha A numeric value in the interval (0,1) which specifies the confidence level.
+#' Default is 0.05.
 #'
 #' @param split A logical value of T or F which allows to compare two groups.
 #' Default is FALSE.
@@ -31,6 +37,9 @@ NULL
 #' simplified event-weighted survival and variance estimates (simplify = TRUE) or
 #' the participant-weighted survival and variance estimates (simplify = FALSE).
 #' Default is FALSE.
+#'
+#' @param ref_group An optional string value that can be used when split = TRUE to
+#' specify the reference level group.
 #'
 #' @section References:
 #' Bakal J., Westerhout C. M., Armstrong P. W. (2015) Impact of weighted composite
@@ -44,13 +53,13 @@ NULL
 #' @examples
 #' data(toyexample)
 #' #event weights
-#' EW <- data.frame(event = c('CHF','DTH','SHK','REMI','N'), weight = c(0.3,1,0.5,0.2,0))
-#' res1 <- wcep(toyexample[,1:3], EW, split = FALSE, simplify = FALSE)
+#' weights <- data.frame(event = c('CHF','DTH','SHK','REMI','N'), weight = c(0.3,1,0.5,0.2,0))
+#' res1 <- wcep(data = toyexample[,1:3], weights = weights, split = FALSE, simplify = FALSE)
 #' str(res1)
 #' res1$survival_probabilities
 #' plot(res1)
 #' #comparing two genders
-#' res2 <- wcep(toyexample, EW, split=TRUE, simplify = FALSE)
+#' res2 <- wcep(data = toyexample, weights = weights, split = TRUE, simplify = FALSE, ref_group = "M")
 #' plot(res2)
 
 #' @author
@@ -59,59 +68,72 @@ NULL
 #' Jeffrey Bakal: jbakal@@ualberta.ca,
 #' Sarah Rathwell: srathwel@@ualberta.ca
 #' @seealso \code{\link[survival:coxph]{coxph}} for Anderson Gill model
-#' @importFrom stats qnorm t.test ave
+#' @importFrom stats qnorm
 #' @importFrom graphics plot points polygon legend grid
 #' @importFrom grDevices rgb colors
-#' @importFrom stringr str_extract str_remove
 #' @importFrom Rcpp sourceCpp
 #' @importFrom scales alpha
 #' @useDynLib wcep
-#' @import coin dplyr tidyr RcppProgress
+#' @import coin data.table RcppProgress
 #' @export
 
- wcep <- function(x, EW, alpha = 0.05 , split = FALSE, simplify = FALSE){
+ wcep <- function(data, weights, alpha = 0.05 , split = FALSE, simplify = FALSE, ref_group = NULL){
 
-   if (alpha >= 1 | alpha <= 0) {
-     return(noquote("Error: value of alpha should be between 0 and 1"))
+   # --- Argument checks ---
+   if (!is.numeric(alpha) || length(alpha) != 1 || is.na(alpha) || alpha <= 0 || alpha >= 1)
+     stop("Value of alpha should be in (0, 1)", call. = F)
+   if (!isTRUE(split) && !isFALSE(split))
+     stop("Split argument must be TRUE or FALSE", call. = F)
+   if (!isTRUE(simplify) && !isFALSE(simplify))
+     stop("Simplify argument must be TRUE or FALSE", call. = F)
+
+
+   x  <- if (is.data.table(data))  copy(data)  else as.data.table(data)
+   ew <- if (is.data.table(weights)) copy(weights) else as.data.table(weights)
+
+   if (split  && ncol(x) != 4) stop("data object should have 4 columns", call. = F)
+   if (!split && ncol(x) < 3) stop("data object should have at least 3 columns", call. = F)
+   if (ncol(ew) != 2)          stop("weights object should have 2 columns (event, weight)", call. = F)
+
+   # --- NA / type checks (works for data.frame, tibble, data.table) ---
+   if (anyNA(x[[1]])) stop("NAs in first (ID) column of the data object", call. = F)
+   if (anyNA(x[[2]])) stop("NAs in second (event) column of the data object", call. = F)
+   if (anyNA(x[[3]])) stop("NAs in third (time) column of the data object", call. = F)
+   if (split && anyNA(x[[4]])) stop("NAs in fourth (group) column of the data object", call. = F)
+
+   if (!is.numeric(x[[3]])) stop("The third (time) column of the data object should be numeric", call. = F)
+   if (any(x[[3]] != floor(x[[3]]) | x[[3]] < 1))
+     stop("The third (time) column of the data object must contain whole numbers of at least 1", call. = F)
+
+   if (anyNA(ew[[1]])) stop("NAs in event column of the weights object", call. = F)
+   if (anyNA(ew[[2]])) stop("NAs in weight column of the weights object", call. = F)
+   if (anyDuplicated(ew[[1]])) stop("Duplicate events in the weights object", call. = F)
+
+   # --- Run ---
+   if (!split) {
+     return(wcep_core(x[, 1:3, with = FALSE], ew, alpha, simplify))
    }
-   if ( split == TRUE && dim(x)[2] != 4 ) {
-     return(noquote("Error: Data frame x should have 4 columns" ))
-   }
-   if ( split == FALSE && dim(x)[2] != 3 ) {
-     return(noquote("Error: Data frame x should have 3 columns" ))
-   }
-   if ( is.factor(x[,2]) == FALSE ) {
-     return(noquote("Error: The second column should be factor" ))
-   }
-   if ( split == TRUE && length(unique(x[,4])) != 2 ) {
-     return(noquote("Error: The last column should have two levels" ))
-   }
-   if ( !(simplify %in% c(TRUE, FALSE, T, F)) ) {
-     return(noquote("Error: Simplify argument must be TRUE or FALSE" ))
-   }
 
+   if (split) {
+     grp <- x[[4]]
+     groups <- unique(grp)
+     if (length(groups) != 2) stop("The fourth (group) column of the data object should have two levels", call. = F)
 
-   res <- structure(list(), class = "wcep")
-
-   if(split == FALSE) {
-     res <- wcep_core(x[, 1:3], EW, alpha, simplify)
-   }
-
-   if(split == TRUE) {
-
-     groups <- unique(x[, 4])
-     #handle possible missing factor levels by group
-     x[,1] = as.character(x[,1])
-     x[,2] = as.character(x[,2])
-
-       for(i in 1:2) {
-         dat_i = x[which(x[, 4] == groups[i]), 1:3]
-         dat_i[,1] = as.factor(dat_i[,1])
-         dat_i[,2] = as.factor(dat_i[,2])
-
-         res[[paste0(groups[i], sep="")]] <-
-           wcep_core(dat_i, EW, alpha, simplify)
-       }
+     # --- Optional: choose group level order ---
+     if (!is.null(ref_group)) {
+       if (!is.character(ref_group) || length(ref_group) != 1 || is.na(ref_group))
+         stop("ref_group must be a single string", call. = F)
+       if (!ref_group %in% groups)
+         stop("ref_group '", ref_group, "' is not a level of the group column. ",
+              "Available levels: ", paste(groups, collapse = ", "), call. = F)
+       groups <- c(ref_group, setdiff(groups, ref_group))
      }
-   res
+
+     res <- structure(list(), class = "wcep")
+     for (g in groups) {
+       idx <- which(grp == g)
+       res[[g]] <- wcep_core(x[idx, 1:3, with = FALSE], ew, alpha, simplify)
+     }
+     res
+   }
  }

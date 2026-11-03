@@ -4,26 +4,33 @@
 \alias{wcep}
 \title{Analysis of weighted composite endpoints}
 \usage{
-wcep(x, EW, alpha = 0.05, split = FALSE, simplify = FALSE)
+wcep(
+  data,
+  weights,
+  alpha = 0.05,
+  split = FALSE,
+  simplify = FALSE,
+  ref_group = NULL
+)
 }
 \arguments{
-\item{x}{This data frame usually has 3 columns. The first column specifies patient ID,
-which is a character or numeric vector, the second column is a factor with character values
-of event types. The third column is a numeric vector of event times. If split = TRUE,
-then the forth column is a character vector of split groups of at most two groups,
-like gender.}
+\item{data}{This data.frame, tibble, or data.table usually has 3 columns. The first column specifies patient ID,
+which is a character, factor, or numeric vector, the second column specifies event type, which is a
+character, factor, or numeric. The third column specifies event time, which is a whole number numeric. The
+maximum follow time for administrative censoring and plotting will be set to the max value of this column.
+IThe forth (optional) column is a character, factor, or numeric, specifying group level. Currently, two unique group levels
+can be used (e.g., Male and Female). The grouping column will only be used when SPLIT = TRUE.}
 
-\item{EW}{This data frame has two columns. The first column
+\item{weights}{This data.frame, tibble, or data.table has two columns. The first column
 specifies a character vector of event types. The second column specify weights.
-The naming of event types in x and EW should be exactly similar. Events with
-weight = 1 are terminal events; events with weight = 0 are censoring events.
-Data should contain at most one terminal event type and one censoring event
-type. IDs should have at most either one terminal event type or one censoring
-event type. IDs without either a terminal or censor event listed will be censored
-at the maximum follow time otherwise listed in the data.}
+The naming of event types should match those in the second column of the data object.
+Weights must be numeric, with values between 0 and 1. Events with weight = 1 are terminal events;
+events with weight = 0 are censoring events. IDs with multiple terminal, censor, or a combination
+of terminal and censoring event types will use the first observed event. IDs without either
+a terminal or censor event listed will be censored at the maximum follow time.}
 
-\item{alpha}{A numeric value between 0-1 which specifies the confidence level,
-if it is not specified, by default is 0.05.}
+\item{alpha}{A numeric value in the interval (0,1) which specifies the confidence level.
+Default is 0.05.}
 
 \item{split}{A logical value of T or F which allows to compare two groups.
 Default is FALSE.}
@@ -32,10 +39,19 @@ Default is FALSE.}
 simplified event-weighted survival and variance estimates (simplify = TRUE) or
 the participant-weighted survival and variance estimates (simplify = FALSE).
 Default is FALSE.}
+
+\item{ref_group}{An optional string value that can be used when split = TRUE to
+specify the reference level group.}
 }
 \description{
-Analyze given data frame and return Kaplan-Meier survival probabilities together with the specified confidence interval.
- \code{wcep} modifies Kaplan-Meier curve by taking into account severity weights of different event. Alternative methods are Anderson Gill model and win ratio of composite outcomes.The function takes event dataset and user-specified severity weights  to generate a modified Kaplan-Meier curve and comparison statistics based on the weighted composite endpoint method.  The user supplies the event data set, the weights, and the factor to split on . The package will generate the weighted survival curve, confidence interval and test the differences between the two groups.
+Analyze given data frame and return Kaplan-Meier survival probabilities together
+ with the specified confidence interval.
+ \code{wcep} modifies Kaplan-Meier curve by taking into account severity weights of different event.
+ Alternative methods are Anderson Gill model and win ratio of composite outcomes.The function takes
+ event dataset and user-specified severity weights  to generate a modified Kaplan-Meier curve and
+ comparison statistics based on the weighted composite endpoint method.  The user supplies the event
+ data set, the weights, and the factor to split on . The package will generate the weighted survival curve,
+ confidence interval and test the differences between the two groups.
 }
 \section{References}{
 
@@ -51,13 +67,13 @@ estimate of the survival and variance using a weighted composite endpoint,
 \examples{
 data(toyexample)
 #event weights
-EW <- data.frame(event = c('CHF','DTH','SHK','REMI','N'), weight = c(0.3,1,0.5,0.2,0))
-res1 <- wcep(toyexample[,1:3], EW, split = FALSE, simplify = FALSE)
+weights <- data.frame(event = c('CHF','DTH','SHK','REMI','N'), weight = c(0.3,1,0.5,0.2,0))
+res1 <- wcep(data = toyexample[,1:3], weights = weights, split = FALSE, simplify = FALSE)
 str(res1)
 res1$survival_probabilities
 plot(res1)
 #comparing two genders
-res2 <- wcep(toyexample, EW, split=TRUE, simplify = FALSE)
+res2 <- wcep(data = toyexample, weights = weights, split = TRUE, simplify = FALSE, ref_group = "M")
 plot(res2)
 }
 \seealso{

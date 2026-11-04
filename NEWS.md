@@ -1,5 +1,9 @@
 # wcep (development version 1.0.3.9003)
-
+#Major changes
+* Addition of log-rank type test for output when split = TRUE
+* Add utility function for group splitting
+* Allow plotting of unequal follow-up times
+* Add additional efficiency updates and error checks to plot code
 
 # wcep (development version 1.0.3.9002)
 #Major changes

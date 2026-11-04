@@ -40,8 +40,10 @@ Collate:
     'data.R'
     'nam.R'
     'plot.R'
+    'utils.R'
     'wcep-package.R'
     'wcep_core.R'
     'wcep.R'
+    'wcep_logrank.R'
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0

@@ -14,14 +14,14 @@ wcep(
 )
 }
 \arguments{
-\item{data}{A data.frame, tibble, or data.table with at least 3 columns. The first column specifies ID
+\item{data}{a data.frame, tibble, or data.table with at least 3 columns. The first column specifies ID
 (character, factor, or numeric), the second column specifies event type (character, factor, or numeric),
 and the third column specifies event time (numeric whole number or integer). The
 maximum follow time for administrative censoring and plotting will be set to the max value of this column.
 The fourth column is optional and specifies group level (character, factor, or numeric with exactly 2 unique levels).
 The grouping column will only be used when \code{split = TRUE}.}
 
-\item{weights}{A data.frame, tibble, or data.table with exactly two columns. The first column
+\item{weights}{a data.frame, tibble, or data.table with exactly two columns. The first column
 specifies a character vector of event types (character, factor, or numeric) and the second column
 specifies event weights (numeric between 0 and 1). The naming of event types should match those
 in the second column of the data object. Events with weight = 1 are terminal events;
@@ -30,20 +30,27 @@ of terminal and censoring events will use the first observed event. IDs without 
 a terminal or censor event listed will be censored at the maximum follow time. Setting all non-censor events
 to have weight = 1 gives a time-to-first event result.}
 
-\item{alpha}{A numeric value in the interval (0,1) which specifies the confidence level.
+\item{alpha}{a numeric value in the interval (0,1) which specifies the confidence level.
 Default is 0.05.}
 
-\item{split}{A logical value of T or F which allows to compare two groups.
+\item{split}{a logical value of T or F which allows to compare two groups.
 Default is FALSE.}
 
-\item{simplify}{A logical value of T or F which determines whether to use the
+\item{simplify}{a logical value of T or F which determines whether to use the
 simplified event-weighted survival and variance estimates (\code{simplify = TRUE}) or
 the participant-weighted survival and variance estimates (\code{simplify = FALSE}).
 Default is FALSE.}
 
-\item{ref_group}{(Optional) A string value that can be used when \code{split = TRUE} to
+\item{ref_group}{(optional) a string value that can be used when \code{split = TRUE} to
 specify the reference level group. If \code{split = FALSE} and no reference level is
 provided, the package will default to the observed ordering of the group column.}
+}
+\value{
+A wcep object (list). If (\code{simplify = TRUE}) this will include
+survival probabilities, variance, and upper and lower CIs. If (\code{simplify = FALSE})
+an ID x time life table will be output as well. If (\code{split = TRUE}), outputs
+will be provided by group level, along with additional information required for
+calculation of the log-rank statistic.
 }
 \description{
 Analyze given data frame and return Kaplan-Meier-like event weighted survival
@@ -77,6 +84,7 @@ plot(res1)
 #comparing two genders
 res2 <- wcep(data = toyexample, weights = weights, split = TRUE, simplify = FALSE, ref_group = "M")
 plot(res2)
+wcep_logrank(res2)
 }
 \seealso{
 \code{\link[survival:coxph]{coxph}} for Anderson Gill model

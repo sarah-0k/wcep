@@ -12,14 +12,14 @@ NULL
 #'  and optionally, a two-level group to split on. The package will generate the event weighted survival curve and
 #'  confidence interval.
 #'
-#' @param data A data.frame, tibble, or data.table with at least 3 columns. The first column specifies ID
+#' @param data a data.frame, tibble, or data.table with at least 3 columns. The first column specifies ID
 #' (character, factor, or numeric), the second column specifies event type (character, factor, or numeric),
 #' and the third column specifies event time (numeric whole number or integer). The
 #' maximum follow time for administrative censoring and plotting will be set to the max value of this column.
 #' The fourth column is optional and specifies group level (character, factor, or numeric with exactly 2 unique levels).
 #' The grouping column will only be used when \code{split = TRUE}.
 #'
-#' @param weights A data.frame, tibble, or data.table with exactly two columns. The first column
+#' @param weights a data.frame, tibble, or data.table with exactly two columns. The first column
 #' specifies a character vector of event types (character, factor, or numeric) and the second column
 #' specifies event weights (numeric between 0 and 1). The naming of event types should match those
 #' in the second column of the data object. Events with weight = 1 are terminal events;
@@ -28,20 +28,26 @@ NULL
 #' a terminal or censor event listed will be censored at the maximum follow time. Setting all non-censor events
 #' to have weight = 1 gives a time-to-first event result.
 #'
-#' @param alpha A numeric value in the interval (0,1) which specifies the confidence level.
+#' @param alpha a numeric value in the interval (0,1) which specifies the confidence level.
 #' Default is 0.05.
 #'
-#' @param split A logical value of T or F which allows to compare two groups.
+#' @param split a logical value of T or F which allows to compare two groups.
 #' Default is FALSE.
 #'
-#' @param simplify A logical value of T or F which determines whether to use the
+#' @param simplify a logical value of T or F which determines whether to use the
 #' simplified event-weighted survival and variance estimates (\code{simplify = TRUE}) or
 #' the participant-weighted survival and variance estimates (\code{simplify = FALSE}).
 #' Default is FALSE.
 #'
-#' @param ref_group (Optional) A string value that can be used when \code{split = TRUE} to
+#' @param ref_group (optional) a string value that can be used when \code{split = TRUE} to
 #' specify the reference level group. If \code{split = FALSE} and no reference level is
 #' provided, the package will default to the observed ordering of the group column.
+#'
+#' @return A wcep object (list). If (\code{simplify = TRUE}) this will include
+#' survival probabilities, variance, and upper and lower CIs. If (\code{simplify = FALSE})
+#' an ID x time life table will be output as well. If (\code{split = TRUE}), outputs
+#' will be provided by group level, along with additional information required for
+#' calculation of the log-rank statistic.
 #'
 #' @section References:
 #' Bakal J., Westerhout C. M., Armstrong P. W. (2015) Impact of weighted composite
@@ -63,6 +69,7 @@ NULL
 #' #comparing two genders
 #' res2 <- wcep(data = toyexample, weights = weights, split = TRUE, simplify = FALSE, ref_group = "M")
 #' plot(res2)
+#' wcep_logrank(res2)
 
 #' @author
 #' Majid Nabipoor: nabipoor@@ualberta.ca,
@@ -111,13 +118,16 @@ NULL
    if (anyNA(ew[[2]])) stop("NAs in weight column of the weights object", call. = F)
    if (anyDuplicated(ew[[1]])) stop("Duplicate events in the weights object", call. = F)
 
+   if (!split && !is.null(ref_group)) cat("Note: ref_group supplied but split = F. Grouping values are ignored.\n")
+
+
    # --- Run ---
    if (!split) {
-     return(wcep_core(x[, 1:3, with = FALSE], ew, alpha, simplify))
+     return(wcep_core(x[, 1:3, with = FALSE], ew, alpha, simplify, group_n = NULL))
    }
 
    if (split) {
-     grp <- x[[4]]
+     grp <- as.character(x[[4]])
      groups <- unique(grp)
      if (length(groups) != 2) stop("The fourth (group) column of the data object should have two levels", call. = F)
 
@@ -128,13 +138,14 @@ NULL
        if (!ref_group %in% groups)
          stop("ref_group '", ref_group, "' is not a level of the group column. ",
               "Available levels: ", paste(groups, collapse = ", "), call. = F)
-       groups <- c(ref_group, setdiff(groups, ref_group))
+       groups <- c(setdiff(groups, ref_group), ref_group)
      }
 
      res <- structure(list(), class = "wcep")
-     for (g in groups) {
+     for (i in seq_along(groups)) {
+       g <- groups[i]
        idx <- which(grp == g)
-       res[[g]] <- wcep_core(x[idx, 1:3, with = FALSE], ew, alpha, simplify)
+       res[[g]] <- wcep_core(x[idx, 1:3, with = FALSE], ew, alpha, simplify, group_n = i)
      }
      res
    }

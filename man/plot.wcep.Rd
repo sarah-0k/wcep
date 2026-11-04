@@ -42,9 +42,8 @@
 
 \item{linecol}{color or vector of two colors for plotting}
 
-\item{...}{other parameters of generic "plot" have no use here
-setOldClass("wcep")}
+\item{...}{other parameters passed to \code{plot}}
 }
 \description{
-Create a plot of Kaplan-Meier curve with its specified confidence interval
+Create a plot of Kaplan-Meier-like curve(s) with confidence intervals.
 }

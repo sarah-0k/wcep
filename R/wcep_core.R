@@ -6,7 +6,7 @@
 # Authors: Majid Nabipoor, Jeff Bakal
 # revised: Sep. 2019, Jan. 2020, Oct. 2020
 
- wcep_core <- function(x, ew, alpha, simplify) {
+ wcep_core <- function(x, ew, alpha, simplify, group_n) {
 
    out <- list(); class(out) <- "wcep"
 
@@ -158,10 +158,16 @@
      out$variance <- v_vector
    }
 
-
    z <- qnorm(1 - alpha / 2)
    out$upper <- pmin(pmax(out$survival_probabilities + z * sqrt(v_vector), 0), 1)
    out$lower <- pmin(pmax(out$survival_probabilities - z * sqrt(v_vector), 0), 1)
+
+   if (!is.null(group_n)) {
+     out$n_riskset <- n_riskset
+     out$w <- W_valid
+     out$pj <- pj
+     out$group_n <- group_n
+   }
 
    return(out)
  }

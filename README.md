@@ -8,15 +8,18 @@
 [![R-CMD-check](https://github.com/sarah-0k/wcep/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/sarah-0k/wcep/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of wcep is to analyze time-to-event data with multiple events,
-for instance death and shock with related severity weights. The weight
-of death is always 1 and other events have a positive weight smaller
-than 1.
+The goal of wcep is to analyze time-to-event data with multiple event
+types and/or recurrent events (e.g., death and shock) with related
+severity weights. The weight of terminal events (death) is always 1.
+Non-terminal and recurrent events have a weight on the interval (0, 1).
+Right censoring occurs when an event is given weight 0.
 
-This package provides two main functions: wcep produce survival
-probabilities with related variances, and plot function uses survival
-probabilities to illustrate Kaplan Meier curve with prespecified
-confidence interval. Also, it provides a dataset.
+This package provides three main functions: `wcep()` estimates
+event-weighted survival probabilities with estimated variance, `plot()`
+produces Kaplan-Meier-like curves of event-weighted survival with
+pre-specified confidence intervals, and `wcep_logrank()` provides a
+log-rank type test statistic with corresponding p-value to compare two
+groups. A simple dataset (`toyexample`) is provided.
 
 ## Installation
 

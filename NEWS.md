@@ -1,12 +1,12 @@
 # wcep (development version 1.0.3.9003)
-#Major changes
+## Major changes
 * Addition of log-rank type test for output when split = TRUE
 * Add utility function for group splitting
 * Allow plotting of unequal follow-up times
 * Add additional efficiency updates and error checks to plot code
 
 # wcep (development version 1.0.3.9002)
-#Major changes
+## Major changes
 * Full rewrite of data processing core code to use data.table functionality.
   - Processing speeds cut by ~50-80%.
   - Ability to handle slightly larger data before memory limit reached.
